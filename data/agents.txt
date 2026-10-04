@@ -1,0 +1,4 @@
+AG-1001|Sarah Perera|sarah@test.com|pass123|Commercial|077-2222222|4.8|22
+AG-1002|Mike Fernando|mike@test.com|pass123|Land|077-3333333|3.9|8
+AG-1003|John Silva|john@test.com|pass123|Residential|077-1111111|4.2|15
+AG-1004|Nimal Jayasuriya|nimal@test.com|pass123|Residential|077-4444444|4.5|18
