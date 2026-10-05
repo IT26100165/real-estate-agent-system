@@ -32,10 +32,12 @@
             <td>${a.averageRating}</td>
             <td>${a.totalReviews}</td>
             <td>
-                <a href="/agents/delete/${a.id}"
-                   class="btn btn-sm btn-danger"
-                   onclick="return confirm('Delete this agent?')">Delete</a>
+                 <a href="/agents/edit/${a.id}" class="btn btn-sm btn-warning">Edit</a>
+                 <a href="/agents/delete/${a.id}"
+                 class="btn btn-sm btn-danger"
+                 onclick="return confirm('Delete this agent?')">Delete</a>
             </td>
+
         </tr>
     </c:forEach>
     <c:if test="${empty agents}">

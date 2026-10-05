@@ -55,4 +55,28 @@ public class AgentController {
         agentService.deleteAgent(id);
         return "redirect:/agents/list";
     }
+
+    // 7. EDIT PAGE - shows the form pre-filled with agent data
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable String id, Model model) {
+        Agent agent = agentService.searchById(id);
+        if (agent == null) {
+            return "redirect:/agents/list";
+        }
+        model.addAttribute("agent", agent);
+        return "agent-edit";
+    }
+
+    // 8. EDIT - processes form submission
+    @PostMapping("/edit")
+    public String updateAgent(@RequestParam String id,
+                              @RequestParam String name,
+                              @RequestParam String email,
+                              @RequestParam String password,
+                              @RequestParam String specialization,
+                              @RequestParam String contactNumber) {
+        Agent agent = new Agent(id, name, email, password, specialization, contactNumber);
+        agentService.updateAgent(agent);
+        return "redirect:/agents/list";
+    }
 }

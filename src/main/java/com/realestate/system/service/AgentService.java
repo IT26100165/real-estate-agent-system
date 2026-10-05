@@ -37,6 +37,22 @@ public class AgentService {
         return agentBST.search(id);
     }
 
+    // UPDATE
+    public boolean updateAgent(Agent updatedAgent) {
+        Agent existing = agentBST.search(updatedAgent.getId());
+        if (existing == null) return false;
+
+        // Update the existing object's fields (keeps BST structure intact)
+        existing.setName(updatedAgent.getName());
+        existing.setEmail(updatedAgent.getEmail());
+        existing.setPassword(updatedAgent.getPassword());
+        existing.setSpecialization(updatedAgent.getSpecialization());
+        existing.setContactNumber(updatedAgent.getContactNumber());
+
+        agentBST.saveToFile();
+        return true;
+    }
+
     public boolean deleteAgent(String id) {
         Agent existing = agentBST.search(id);
         if (existing == null) return false;

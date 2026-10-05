@@ -1,4 +1,4 @@
 AG-1002|Mike Fernando|mike@test.com|pass123|Land|077-3333333|3.9|8
-AG-1003|John Silva|john@test.com|pass123|Residential|077-1111111|4.2|15
-AG-1004|Nimal Jayasuriya|nimal@test.com|pass123|Residential|077-4444444|4.5|18
+AG-1003|John Bandara|john@test.com|pass123|Residential|077-1111111|4.2|15
 AG-1005|Lochana Thoradeniya|lochanabandara116@gmail.com|Lochz_376|Residential|0753203935|0.0|0
+AG-1006|Osama Bin-Laden|Osama@gmail.com|Osama123|Residential|0753203935|0.0|0
