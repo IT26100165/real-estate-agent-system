@@ -53,6 +53,17 @@ public class AgentService {
         return true;
     }
 
+    // AUTHENTICATE - Check email + password against agents
+    public Agent authenticate(String email, String password) {
+        List<Agent> agents = agentBST.getAllAgents();
+        for (Agent a : agents) {
+            if (a.getEmail().equals(email) && a.getPassword().equals(password)) {
+                return a;
+            }
+        }
+        return null;
+    }
+
     public boolean deleteAgent(String id) {
         Agent existing = agentBST.search(id);
         if (existing == null) return false;

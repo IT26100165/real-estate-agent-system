@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -22,6 +23,22 @@
                 <li class="nav-item"><a class="nav-link" href="/properties/list">Properties</a></li>
                 <li class="nav-item"><a class="nav-link" href="/reviews/list">Reviews</a></li>
                 <li class="nav-item"><a class="nav-link" href="/admins/list">Admin</a></li>
+
+                <c:choose>
+                    <c:when test="${not empty sessionScope.user}">
+                        <li class="nav-item">
+                            <span class="nav-link">👋 ${sessionScope.userName}</span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-warning" href="/logout">Logout</a>
+                        </li>
+                    </c:when>
+                    <c:otherwise>
+                        <li class="nav-item">
+                            <a class="nav-link text-info" href="/login">Login</a>
+                        </li>
+                    </c:otherwise>
+                </c:choose>
             </ul>
         </div>
     </div>
