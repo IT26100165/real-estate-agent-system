@@ -1,45 +1,46 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Search Agent</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
-<div class="container mt-4" style="max-width: 700px;">
-    <h2>Search Agent by ID</h2>
+<%@ include file="header.jsp" %>
 
-    <form action="/agents/search/results" method="get" class="mb-4">
-        <div class="input-group">
-            <input type="text" name="id" class="form-control" placeholder="Enter Agent ID (e.g., AG-1001)" required>
-            <button type="submit" class="btn btn-primary">Search</button>
-        </div>
-    </form>
+<div class="container" style="max-width: 700px;">
+    <h2 class="page-title">🔍 Search Agent</h2>
+
+    <div class="form-card mb-4">
+        <form action="/agents/search/results" method="get">
+            <div class="input-group">
+                <input type="text" name="id" class="form-control"
+                       placeholder="Enter Agent ID (e.g., AG-1001)" required autofocus>
+                <button type="submit" class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
 
     <c:if test="${not empty searchedId}">
         <c:choose>
             <c:when test="${not empty agent}">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">${agent.name}</h5>
-                        <p class="card-text">
-                            <strong>ID:</strong> ${agent.id}<br>
-                            <strong>Email:</strong> ${agent.email}<br>
-                            <strong>Specialization:</strong> ${agent.specialization}<br>
-                            <strong>Contact:</strong> ${agent.contactNumber}<br>
-                            <strong>Rating:</strong> ${agent.averageRating} (${agent.totalReviews} reviews)
+                <div class="card card-modern fade-in">
+                    <div class="card-body p-4">
+                        <h4 class="card-title mb-3">✅ ${agent.name}</h4>
+                        <p class="mb-1"><strong>ID:</strong> ${agent.id}</p>
+                        <p class="mb-1"><strong>Email:</strong> ${agent.email}</p>
+                        <p class="mb-1"><strong>Specialization:</strong> ${agent.specialization}</p>
+                        <p class="mb-1"><strong>Contact:</strong> ${agent.contactNumber}</p>
+                        <p class="mb-0"><strong>Rating:</strong>
+                            <span class="rating">⭐ ${agent.averageRating}</span>
+                            (${agent.totalReviews} reviews)
                         </p>
                     </div>
                 </div>
             </c:when>
             <c:otherwise>
-                <div class="alert alert-warning">No agent found with ID: <strong>${searchedId}</strong></div>
+                <div class="alert alert-warning text-center">
+                    No agent found with ID: <strong>${searchedId}</strong>
+                </div>
             </c:otherwise>
         </c:choose>
     </c:if>
 
-    <a href="/agents/list" class="btn btn-secondary mt-3">Back to List</a>
+    <a href="/agents/list" class="btn btn-outline-primary mt-3">← Back to List</a>
 </div>
-</body>
-</html>
+
+<%@ include file="footer.jsp" %>

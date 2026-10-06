@@ -2,10 +2,10 @@
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ include file="header.jsp" %>
 
-<div class="container" style="max-width: 400px; margin-top: 50px;">
-    <div class="card shadow">
-        <div class="card-body">
-            <h2 class="text-center mb-4">🔐 Login</h2>
+<div class="container" style="max-width: 440px; margin-top: 40px;">
+    <div class="card card-modern fade-in">
+        <div class="card-body p-4">
+            <h2 class="text-center mb-4">🔐 Welcome Back</h2>
 
             <c:if test="${not empty error}">
                 <div class="alert alert-danger">${error}</div>
@@ -24,15 +24,14 @@
             </form>
 
             <hr>
-            <p class="text-center mb-0">
-                Don't have an account?
-                <a href="/agents/add">Register as Agent</a>
+            <p class="text-center mb-0 small">
+                Don't have an account? <a href="/agents/add">Register as Agent</a>
             </p>
         </div>
     </div>
 
-    <div class="alert alert-info mt-3">
-        <strong>Test credentials (from agents.txt):</strong><br>
+    <div class="alert alert-info mt-3 small">
+        <strong>Test credentials:</strong><br>
         Email: <code>sarah@test.com</code><br>
         Password: <code>pass123</code>
     </div>
