@@ -1,5 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
+<%@ taglib prefix="fn" uri="jakarta.tags.functions" %>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -30,11 +31,16 @@
 
                 <c:choose>
                     <c:when test="${not empty sessionScope.user}">
-                        <li class="nav-item ms-3">
-                            <span class="badge-role">👋 ${sessionScope.userName}</span>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="/logout">Logout</a>
+                        <li class="nav-item dropdown ms-3">
+                            <a class="nav-link dropdown-toggle d-flex align-items-center gap-2" href="#" data-bs-toggle="dropdown">
+                                <span class="user-avatar">${fn:substring(sessionScope.userName, 0, 1)}</span>
+                                <span>${sessionScope.userName}</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><span class="dropdown-item-text small text-muted">Role: ${sessionScope.role}</span></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+                            </ul>
                         </li>
                     </c:when>
                     <c:otherwise>
