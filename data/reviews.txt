@@ -1,0 +1,4 @@
+REV-5001|CL-2001|AG-1002|3|Excellent service, very professional|2026-09-15|Approved
+REV-5002|CL-2002|AG-1002|4|Good knowledge of the area|2026-09-18|Approved
+REV-5003|CL-2003|AG-1003|5|Helped us find our dream home|2026-09-20|Approved
+REV-5004|CL-2001|AG-1002|1|Bad experience|2026-10-11|Approved

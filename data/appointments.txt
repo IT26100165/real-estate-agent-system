@@ -1,0 +1,2 @@
+APP-3001|CL-2001|AG-1002|2026-10-15|10:00 AM|Pending|3-bedroom apartment in Colombo 07|Initial viewing
+APP-3002|CL-2002|AG-1002|2026-10-16|02:00 PM|Confirmed|Commercial space in Kandy|Client is serious buyer

@@ -64,6 +64,16 @@ public class AgentService {
         return null;
     }
 
+    // UPDATE RATING - called by ReviewService when reviews change
+    public void updateAgentRating(String agentId, double newRating, int totalReviews) {
+        Agent agent = agentBST.search(agentId);
+        if (agent != null) {
+            agent.setAverageRating(newRating);
+            agent.setTotalReviews(totalReviews);
+            agentBST.saveToFile();
+        }
+    }
+
     public boolean deleteAgent(String id) {
         Agent existing = agentBST.search(id);
         if (existing == null) return false;

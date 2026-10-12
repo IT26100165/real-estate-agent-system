@@ -1,0 +1,2 @@
+ADM-9001|System Admin|admin@system.com|admin123|FULL_ACCESS|Never|Account created
+ADM-9002|Read Only Admin|viewer@system.com|view123|READ_ONLY|Never|Account created
