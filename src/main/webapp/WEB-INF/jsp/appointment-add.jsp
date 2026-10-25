@@ -29,7 +29,7 @@
                 <div class="col-md-6 mb-3"><label class="form-label">Date</label><input type="date" name="date" class="form-control" required></div>
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Time Slot</label>
-                    <select name="timeSlot" class="form-select"><option>09:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>02:00 PM</option><option>03:00 PM</option></select>
+                    <select name="timeSlot" class="form-select"><option>09:00 AM</option><option>10:00 AM</option><option>11:00 AM</option><option>01.00 PM</option><option>02:00 PM</option><option>03:00 PM</option></select>
                 </div>
             </div>
             <div class="mb-3">
