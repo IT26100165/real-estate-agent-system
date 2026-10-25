@@ -41,7 +41,7 @@
                     <select name="moderationStatus" class="form-select"><option>Pending</option><option>Approved</option></select>
                 </div>
             </div>
-            <div class="mb-3"><label class="form-label">Comment</label><textarea name="comment" class="form-control" rows="3" required></textarea></div>
+            <div class="mb-3"><label class="form-label">Comment</label><textarea name="comment" class="form-control" rows="3" placeholder= "Tell us about your experience..." required></textarea></div>
 
             <div class="d-flex gap-2 mt-4">
                 <button type="submit" class="btn btn-success">💾 Submit Review</button>
