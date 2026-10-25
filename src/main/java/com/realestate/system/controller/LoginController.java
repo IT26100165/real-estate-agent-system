@@ -43,7 +43,7 @@ public class LoginController {
             session.setAttribute("user", agent);
             session.setAttribute("userName", agent.getName());
             session.setAttribute("role", agent.getRole());
-            return "redirect:/agents/list";
+            return "redirect:/dashboard";
         }
 
         // Try Client login
@@ -52,7 +52,7 @@ public class LoginController {
             session.setAttribute("user", client);
             session.setAttribute("userName", client.getName());
             session.setAttribute("role", client.getRole());
-            return "redirect:/clients/list";
+            return "redirect:/dashboard";
         }
 
         // Try Admin login
@@ -61,7 +61,7 @@ public class LoginController {
             session.setAttribute("user", admin);
             session.setAttribute("userName", admin.getName());
             session.setAttribute("role", admin.getRole());
-            return "redirect:/admins/list";
+            return "redirect:/dashboard";
         }
 
         model.addAttribute("error", "Invalid email or password");
