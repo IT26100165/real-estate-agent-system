@@ -4,7 +4,7 @@
 
 <div class="container py-4">
     <div class="page-title-bar">
-        <h2 class="page-title">👤 Registered Clients</h2>
+        <h2 class="page-title">👤 Client Directory</h2>
         <div class="action-buttons">
             <c:if test="${sessionScope.role == 'ADMIN'}">
                 <a href="/clients/add" class="btn btn-primary">+ Add Client</a>
