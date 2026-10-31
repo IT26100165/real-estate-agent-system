@@ -1,5 +1,6 @@
 package com.realestate.system.controller;
 
+import com.realestate.system.exception.ResourceNotFoundException;
 import com.realestate.system.model.Agent;
 import com.realestate.system.model.Appointment;
 import com.realestate.system.model.Client;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +21,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/appointments")
 public class AppointmentController {
+
     @Autowired
     private AppointmentService appointmentService;
     @Autowired
@@ -49,14 +53,18 @@ public class AppointmentController {
     }
 
     @PostMapping("/add")
-    public String addAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, Model model, HttpSession session) {
+    public String addAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         if (session.getAttribute("role") == null) return "redirect:/login";
-        if (!appointmentService.addAppointment(new Appointment(id, clientId, agentId, date, timeSlot, status, propertyDescription, notes))) {
-            model.addAttribute("error", "Conflict detected.");
+        Appointment appt = new Appointment(id, clientId, agentId, date, timeSlot, status, propertyDescription, notes);
+        if (!appointmentService.addAppointment(appt)) {
+            model.addAttribute("error", "Conflict detected or Duplicate ID.");
             model.addAttribute("clients", clientService.getAllClients());
             model.addAttribute("agents", agentService.getAllAgents());
             return "appointment-add";
         }
+
+        redirectAttributes.addFlashAttribute("message", "Appointment booked for " + date + "!");
+        redirectAttributes.addFlashAttribute("toastType", "success");
         return "redirect:/appointments/list";
     }
 
@@ -69,21 +77,26 @@ public class AppointmentController {
     @GetMapping("/search/results")
     public String searchAppointment(@RequestParam String id, Model model, HttpSession session) {
         if (session.getAttribute("role") == null) return "redirect:/login";
+
         Appointment appt = appointmentService.searchById(id);
+        if (appt == null) {
+            throw new ResourceNotFoundException("No appointment exists with the ID: " + id);
+        }
         model.addAttribute("appointment", appt);
         model.addAttribute("searchedId", id);
-        if (appt != null) {
-            model.addAttribute("clientName", clientService.searchById(appt.getClientId()) != null ? clientService.searchById(appt.getClientId()).getName() : "Unknown");
-            model.addAttribute("agentName", agentService.searchById(appt.getAgentId()) != null ? agentService.searchById(appt.getAgentId()).getName() : "Unknown");
-        }
+        model.addAttribute("clientName", clientService.searchById(appt.getClientId()) != null ? clientService.searchById(appt.getClientId()).getName() : "Unknown");
+        model.addAttribute("agentName", agentService.searchById(appt.getAgentId()) != null ? agentService.searchById(appt.getAgentId()).getName() : "Unknown");
         return "appointment-search";
     }
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model, HttpSession session) {
         if (!canManage(session)) return "redirect:/appointments/list";
+
         Appointment appt = appointmentService.searchById(id);
-        if (appt == null) return "redirect:/appointments/list";
+        if (appt == null) {
+            throw new ResourceNotFoundException("Cannot edit. Appointment not found with ID: " + id);
+        }
         model.addAttribute("appointment", appt);
         model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("agents", agentService.getAllAgents());
@@ -91,16 +104,22 @@ public class AppointmentController {
     }
 
     @PostMapping("/edit")
-    public String updateAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, HttpSession session) {
+    public String updateAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canManage(session)) return "redirect:/appointments/list";
         appointmentService.updateAppointment(new Appointment(id, clientId, agentId, date, timeSlot, status, propertyDescription, notes));
+
+        redirectAttributes.addFlashAttribute("message", "Appointment updated successfully.");
+        redirectAttributes.addFlashAttribute("toastType", "info");
         return "redirect:/appointments/list";
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteAppointment(@PathVariable String id, HttpSession session) {
+    public String deleteAppointment(@PathVariable String id, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canManage(session)) return "redirect:/appointments/list";
         appointmentService.deleteAppointment(id);
+
+        redirectAttributes.addFlashAttribute("message", "Appointment cancelled and deleted.");
+        redirectAttributes.addFlashAttribute("toastType", "error");
         return "redirect:/appointments/list";
     }
 

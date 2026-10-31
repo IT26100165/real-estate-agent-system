@@ -1,5 +1,6 @@
 package com.realestate.system.controller;
 
+import com.realestate.system.exception.ResourceNotFoundException;
 import com.realestate.system.model.Agent;
 import com.realestate.system.model.Client;
 import com.realestate.system.model.Review;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +22,7 @@ import java.util.Map;
 @Controller
 @RequestMapping("/reviews")
 public class ReviewController {
+
     @Autowired
     private ReviewService reviewService;
     @Autowired
@@ -45,7 +49,7 @@ public class ReviewController {
     }
 
     @PostMapping("/add")
-    public String addReview(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, @RequestParam String moderationStatus, Model model, HttpSession session) {
+    public String addReview(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, @RequestParam String moderationStatus, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         if (session.getAttribute("role") == null) return "redirect:/login";
         if (!reviewService.addReview(new Review(id, clientId, agentId, rating, comment, LocalDate.now().toString(), moderationStatus))) {
             model.addAttribute("error", "Duplicate ID.");
@@ -53,6 +57,9 @@ public class ReviewController {
             model.addAttribute("agents", agentService.getAllAgents());
             return "review-add";
         }
+
+        redirectAttributes.addFlashAttribute("message", "Thank you! Your review has been submitted.");
+        redirectAttributes.addFlashAttribute("toastType", "success");
         return "redirect:/reviews/list";
     }
 
@@ -65,21 +72,26 @@ public class ReviewController {
     @GetMapping("/search/results")
     public String searchReview(@RequestParam String id, Model model, HttpSession session) {
         if (session.getAttribute("role") == null) return "redirect:/login";
+
         Review review = reviewService.searchById(id);
+        if (review == null) {
+            throw new ResourceNotFoundException("No review exists with the ID: " + id);
+        }
         model.addAttribute("review", review);
         model.addAttribute("searchedId", id);
-        if (review != null) {
-            model.addAttribute("clientName", clientService.searchById(review.getClientId()) != null ? clientService.searchById(review.getClientId()).getName() : "Unknown");
-            model.addAttribute("agentName", agentService.searchById(review.getAgentId()) != null ? agentService.searchById(review.getAgentId()).getName() : "Unknown");
-        }
+        model.addAttribute("clientName", clientService.searchById(review.getClientId()) != null ? clientService.searchById(review.getClientId()).getName() : "Unknown");
+        model.addAttribute("agentName", agentService.searchById(review.getAgentId()) != null ? agentService.searchById(review.getAgentId()).getName() : "Unknown");
         return "review-search";
     }
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model, HttpSession session) {
         if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/reviews/list";
+
         Review review = reviewService.searchById(id);
-        if (review == null) return "redirect:/reviews/list";
+        if (review == null) {
+            throw new ResourceNotFoundException("Cannot edit. Review not found with ID: " + id);
+        }
         model.addAttribute("review", review);
         model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("agents", agentService.getAllAgents());
@@ -87,16 +99,22 @@ public class ReviewController {
     }
 
     @PostMapping("/edit")
-    public String updateReview(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, @RequestParam String reviewDate, @RequestParam String moderationStatus, HttpSession session) {
+    public String updateReview(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, @RequestParam String reviewDate, @RequestParam String moderationStatus, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/reviews/list";
         reviewService.updateReview(new Review(id, clientId, agentId, rating, comment, reviewDate, moderationStatus));
+
+        redirectAttributes.addFlashAttribute("message", "Review moderated successfully.");
+        redirectAttributes.addFlashAttribute("toastType", "info");
         return "redirect:/reviews/list";
     }
 
     @GetMapping("/delete/{id}")
-    public String deleteReview(@PathVariable String id, HttpSession session) {
+    public String deleteReview(@PathVariable String id, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/reviews/list";
         reviewService.deleteReview(id);
+
+        redirectAttributes.addFlashAttribute("message", "Review permanently deleted.");
+        redirectAttributes.addFlashAttribute("toastType", "error");
         return "redirect:/reviews/list";
     }
 

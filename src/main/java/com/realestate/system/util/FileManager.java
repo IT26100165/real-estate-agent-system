@@ -21,7 +21,8 @@ public class FileManager {
                 }
             }
         } catch (IOException e) {
-            System.out.println("Error reading " + fileName + ": " + e.getMessage());
+            // Throw exception so the GlobalExceptionHandler catches it
+            throw new RuntimeException("Failed to read data from file: " + fileName, e);
         }
         return lines;
     }
@@ -36,7 +37,7 @@ public class FileManager {
                 bw.newLine();
             }
         } catch (IOException e) {
-            System.out.println("Error writing " + fileName + ": " + e.getMessage());
+            throw new RuntimeException("Failed to write data to file: " + fileName, e);
         }
     }
 
@@ -48,7 +49,7 @@ public class FileManager {
             bw.write(line);
             bw.newLine();
         } catch (IOException e) {
-            System.out.println("Error appending to " + fileName + ": " + e.getMessage());
+            throw new RuntimeException("Failed to append data to file: " + fileName, e);
         }
     }
 }
