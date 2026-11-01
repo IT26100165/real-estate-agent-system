@@ -363,3 +363,142 @@ body {
 .table-modern td:last-child {
     padding-right: 2rem !important;
 }
+
+/* ===== PREMIUM VISUAL UPGRADES ===== */
+
+/* Soft dot grid background */
+body {
+    background-color: #fafafa;
+    background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+    background-size: 24px 24px;
+}
+
+/* Sticky Navbar with blur effect */
+.navbar-custom.sticky-top {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+}
+
+/* Premium Hero Section */
+.hero-section {
+    background: radial-gradient(circle at 50% -20%, #e0e7ff 0%, transparent 60%);
+    padding: 6rem 0 4rem;
+}
+
+.hero-section h1 {
+    color: #111827;
+}
+
+/* Icon sizing for Bootstrap Icons */
+.brand-mark i {
+    font-size: 1.1rem;
+}
+
+.module-card-icon i {
+    font-size: 1.4rem;
+}
+
+/* Modern Cards */
+.module-card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.module-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
+    border-color: #d1d5db;
+}
+
+/* Soft badges */
+.bg-primary-subtle {
+    background-color: #e0e7ff !important;
+}
+.text-primary {
+    color: var(--primary) !important;
+}
+.border-primary-subtle {
+    border-color: #c7d2fe !important;
+}
+
+/* ===== ENTERPRISE DATA UI ===== */
+
+/* Avatars for Tables */
+.avatar-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    color: #4f46e5;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-right: 10px;
+    text-transform: uppercase;
+}
+
+/* Status Badges */
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+.status-available, .status-confirmed, .status-approved { background: #d1fae5; color: #065f46; }
+.status-sold, .status-cancelled, .status-rejected { background: #fee2e2; color: #991b1b; }
+.status-rented, .status-pending { background: #fef3c7; color: #92400e; }
+
+/* Dashboard Stat Cards */
+.stat-card-new {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: all 0.2s;
+}
+.stat-card-new:hover {
+    box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+    border-color: #d1d5db;
+    transform: translateY(-2px);
+}
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+.stat-icon-blue { background: #e0e7ff; color: #4f46e5; }
+.stat-icon-green { background: #d1fae5; color: #059669; }
+.stat-icon-purple { background: #f3e8ff; color: #9333ea; }
+.stat-icon-orange { background: #ffedd5; color: #ea580c; }
+
+.stat-content .stat-number {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.stat-content .stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}

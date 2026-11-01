@@ -19,10 +19,8 @@ public class LoginController {
 
     @Autowired
     private AgentService agentService;
-
     @Autowired
     private ClientService clientService;
-
     @Autowired
     private AdminService adminService;
 
@@ -61,6 +59,7 @@ public class LoginController {
             session.setAttribute("user", admin);
             session.setAttribute("userName", admin.getName());
             session.setAttribute("role", admin.getRole());
+            session.setAttribute("adminPermissions", admin.getPermissions()); // <--- NEW GRANULAR PERMISSION
             return "redirect:/dashboard";
         }
 

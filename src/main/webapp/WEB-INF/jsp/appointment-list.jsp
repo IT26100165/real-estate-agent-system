@@ -3,33 +3,61 @@
 <%@ include file="header.jsp" %>
 
 <div class="container py-4">
-    <div class="page-title-bar">
-        <h2 class="page-title">📅 Appointments</h2>
+    <div class="page-title-bar mb-4">
+        <h2 class="page-title"><i class="bi bi-calendar-event text-primary me-2"></i>Appointments</h2>
         <div class="action-buttons">
-            <a href="/appointments/add" class="btn btn-primary">+ Book Appointment</a>
-            <a href="/appointments/search" class="btn btn-outline-primary">🔍 Search</a>
+            <a href="/appointments/add" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Book Appointment</a>
+            <a href="/appointments/search" class="btn btn-outline-primary"><i class="bi bi-search me-1"></i> Search</a>
         </div>
     </div>
 
-    <c:if test="${empty appointments}"><div class="empty-state"><h3>No Appointments Yet</h3></div></c:if>
-
     <c:if test="${not empty appointments}">
         <div class="table-responsive">
-            <table class="table table-modern">
+            <table class="table table-modern align-middle">
                 <thead>
                 <tr>
-                    <th>ID</th><th>Client</th><th>Agent</th><th>Date</th><th>Status</th>
-                    <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'AGENT'}"><th class="text-end">Actions</th></c:if>
+                    <th>ID</th>
+                    <th>Client</th>
+                    <th>Agent</th>
+                    <th>Schedule</th>
+                    <th>Status</th>
+                    <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'AGENT'}">
+                        <th class="text-end">Actions</th>
+                    </c:if>
                 </tr>
                 </thead>
                 <tbody>
                 <c:forEach var="ap" items="${appointments}">
                     <tr>
-                        <td><strong>${ap.id}</strong></td><td>${clientNames[ap.clientId]}</td><td>${agentNames[ap.agentId]}</td><td>${ap.date} ${ap.timeSlot}</td><td>${ap.status}</td>
+                        <td><span class="text-muted fw-bold">${ap.id}</span></td>
+                        <td class="fw-bold text-dark">${clientNames[ap.clientId]}</td>
+                        <td class="text-muted">${agentNames[ap.agentId]}</td>
+                        <td>
+                            <div class="fw-bold text-dark">${ap.date}</div>
+                            <div class="small text-muted"><i class="bi bi-clock me-1"></i>${ap.timeSlot}</div>
+                        </td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${ap.status == 'Confirmed'}">
+                                    <span class="status-badge status-confirmed">Confirmed</span>
+                                </c:when>
+                                <c:when test="${ap.status == 'Pending'}">
+                                    <span class="status-badge status-pending">Pending</span>
+                                </c:when>
+                                <c:when test="${ap.status == 'Completed'}">
+                                    <span class="status-badge status-available">Completed</span>
+                                </c:when>
+                                <c:when test="${ap.status == 'Cancelled'}">
+                                    <span class="status-badge status-cancelled">Cancelled</span>
+                                </c:when>
+                            </c:choose>
+                        </td>
                         <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'AGENT'}">
                             <td class="text-end">
-                                <a href="/appointments/edit/${ap.id}" class="btn btn-sm btn-warning">Edit</a>
-                                <a href="/appointments/delete/${ap.id}" class="btn btn-sm btn-danger" onclick="return confirm('Delete?')">Delete</a>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="/appointments/edit/${ap.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                    <a href="/appointments/delete/${ap.id}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')"><i class="bi bi-trash"></i></a>
+                                </div>
                             </td>
                         </c:if>
                     </tr>

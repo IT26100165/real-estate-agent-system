@@ -17,6 +17,11 @@ public class AdminController {
     @Autowired
     private AdminService adminService;
 
+    // Helper method to check if they are full access admin
+    private boolean isFullAccess(HttpSession session) {
+        return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
+    }
+
     @GetMapping("/list")
     public String listAdmins(Model model, HttpSession session) {
         if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/dashboard";
@@ -25,14 +30,23 @@ public class AdminController {
     }
 
     @GetMapping("/add")
-    public String showAddForm(HttpSession session) {
-        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/dashboard";
+    public String showAddForm(HttpSession session, RedirectAttributes redirectAttributes) {
+        if (!isFullAccess(session)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: Read-Only Admins cannot add accounts.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/admins/list";
+        }
         return "admin-add";
     }
 
     @PostMapping("/add")
     public String addAdmin(@RequestParam String id, @RequestParam String name, @RequestParam String email, @RequestParam String password, @RequestParam String permissions, @RequestParam String activityLog, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/dashboard";
+        if (!isFullAccess(session)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/admins/list";
+        }
+
         if (!adminService.addAdmin(new Admin(id, name, email, password, permissions, "Never", activityLog))) {
             model.addAttribute("error", "Duplicate Admin ID.");
             return "admin-add";
@@ -63,8 +77,12 @@ public class AdminController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable String id, Model model, HttpSession session) {
-        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/dashboard";
+    public String showEditForm(@PathVariable String id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        if (!isFullAccess(session)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: Read-Only Admins cannot edit accounts.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/admins/list";
+        }
 
         Admin admin = adminService.searchById(id);
         if (admin == null) {
@@ -76,7 +94,12 @@ public class AdminController {
 
     @PostMapping("/edit")
     public String updateAdmin(@RequestParam String id, @RequestParam String name, @RequestParam String email, @RequestParam String password, @RequestParam String permissions, @RequestParam String lastLogin, @RequestParam String activityLog, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/dashboard";
+        if (!isFullAccess(session)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/admins/list";
+        }
+
         adminService.updateAdmin(new Admin(id, name, email, password, permissions, lastLogin, activityLog));
 
         redirectAttributes.addFlashAttribute("message", "Admin permissions updated.");
@@ -86,7 +109,12 @@ public class AdminController {
 
     @GetMapping("/delete/{id}")
     public String deleteAdmin(@PathVariable String id, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!"ADMIN".equals(session.getAttribute("role"))) return "redirect:/dashboard";
+        if (!isFullAccess(session)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: Read-Only Admins cannot delete accounts.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/admins/list";
+        }
+
         adminService.deleteAdmin(id);
 
         redirectAttributes.addFlashAttribute("message", "Admin account deleted.");

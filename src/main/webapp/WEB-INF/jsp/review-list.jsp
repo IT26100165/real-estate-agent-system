@@ -3,33 +3,60 @@
 <%@ include file="header.jsp" %>
 
 <div class="container py-4">
-    <div class="page-title-bar">
-        <h2 class="page-title">⭐ Reviews & Ratings</h2>
+    <div class="page-title-bar mb-4">
+        <h2 class="page-title"><i class="bi bi-star text-primary me-2"></i>Reviews & Ratings</h2>
         <div class="action-buttons">
-            <a href="/reviews/add" class="btn btn-primary">+ Add Review</a>
-            <a href="/reviews/search" class="btn btn-outline-primary">🔍 Search</a>
+            <a href="/reviews/add" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Review</a>
+            <a href="/reviews/search" class="btn btn-outline-primary"><i class="bi bi-search me-1"></i> Search</a>
         </div>
     </div>
 
-    <c:if test="${empty reviews}"><div class="empty-state"><h3>No Reviews Yet</h3></div></c:if>
-
     <c:if test="${not empty reviews}">
         <div class="table-responsive">
-            <table class="table table-modern">
+            <table class="table table-modern align-middle">
                 <thead>
                 <tr>
-                    <th>ID</th><th>Client</th><th>Agent</th><th>Rating</th><th>Status</th>
-                    <c:if test="${sessionScope.role == 'ADMIN'}"><th class="text-end">Actions</th></c:if>
+                    <th>ID</th>
+                    <th>Client</th>
+                    <th>Agent</th>
+                    <th>Rating</th>
+                    <th>Moderation</th>
+                    <c:if test="${sessionScope.role == 'ADMIN'}">
+                        <th class="text-end">Actions</th>
+                    </c:if>
                 </tr>
                 </thead>
                 <tbody>
                 <c:forEach var="rv" items="${reviews}">
                     <tr>
-                        <td><strong>${rv.id}</strong></td><td>${clientNames[rv.clientId]}</td><td>${agentNames[rv.agentId]}</td><td>${rv.rating} / 5</td><td>${rv.moderationStatus}</td>
+                        <td><span class="text-muted fw-bold">${rv.id}</span></td>
+                        <td class="fw-bold text-dark">${clientNames[rv.clientId]}</td>
+                        <td class="text-muted">${agentNames[rv.agentId]}</td>
+                        <td>
+                            <div class="text-warning fw-bold">
+                                <c:forEach begin="1" end="${rv.rating}"><i class="bi bi-star-fill"></i></c:forEach>
+                                <span class="text-muted ms-1 small">(${rv.rating}/5)</span>
+                            </div>
+                        </td>
+                        <td>
+                            <c:choose>
+                                <c:when test="${rv.moderationStatus == 'Approved'}">
+                                    <span class="status-badge status-approved">Approved</span>
+                                </c:when>
+                                <c:when test="${rv.moderationStatus == 'Pending'}">
+                                    <span class="status-badge status-pending">Pending</span>
+                                </c:when>
+                                <c:when test="${rv.moderationStatus == 'Rejected'}">
+                                    <span class="status-badge status-rejected">Rejected</span>
+                                </c:when>
+                            </c:choose>
+                        </td>
                         <c:if test="${sessionScope.role == 'ADMIN'}">
                             <td class="text-end">
-                                <a href="/reviews/edit/${rv.id}" class="btn btn-sm btn-warning">Edit</a>
-                                <a href="/reviews/delete/${rv.id}" class="btn btn-sm btn-danger" onclick="return confirm('Delete?')">Delete</a>
+                                <div class="d-flex justify-content-end gap-2">
+                                    <a href="/reviews/edit/${rv.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                    <a href="/reviews/delete/${rv.id}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')"><i class="bi bi-trash"></i></a>
+                                </div>
                             </td>
                         </c:if>
                     </tr>

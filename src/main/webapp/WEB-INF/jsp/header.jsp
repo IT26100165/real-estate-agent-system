@@ -8,6 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EstateHub — Real Estate Agent Finder</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons (Replaces Emojis) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <!-- Toastify CSS & JS -->
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
@@ -17,10 +19,10 @@
 </head>
 <body>
 
-<nav class="navbar navbar-expand-lg navbar-custom">
+<nav class="navbar navbar-expand-lg navbar-custom sticky-top">
     <div class="container">
         <a class="navbar-brand" href="/">
-            <span class="brand-mark">E</span> EstateHub
+            <span class="brand-mark"><i class="bi bi-buildings"></i></span> EstateHub
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
             <span class="navbar-toggler-icon"></span>
@@ -28,17 +30,17 @@
         <div class="collapse navbar-collapse" id="navMenu">
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="/agents/list">Agents</a></li>
-                <li class="nav-item"><a class="nav-link" href="/properties/list">Properties</a></li>
+                <li class="nav-item"><a class="nav-link" href="/agents/list"><i class="bi bi-people me-1"></i> Agents</a></li>
+                <li class="nav-item"><a class="nav-link" href="/properties/list"><i class="bi bi-house me-1"></i> Properties</a></li>
 
                 <c:if test="${not empty sessionScope.user}">
-                    <li class="nav-item"><a class="nav-link" href="/appointments/list">Appointments</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/reviews/list">Reviews</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/appointments/list"><i class="bi bi-calendar-event me-1"></i> Appointments</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/reviews/list"><i class="bi bi-star me-1"></i> Reviews</a></li>
                 </c:if>
 
                 <c:if test="${sessionScope.role == 'ADMIN'}">
-                    <li class="nav-item"><a class="nav-link" href="/clients/list">Clients</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/admins/list">Admin</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/clients/list"><i class="bi bi-person-badge me-1"></i> Clients</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/admins/list"><i class="bi bi-shield-lock me-1"></i> Admin</a></li>
                 </c:if>
 
                 <c:choose>
@@ -51,13 +53,13 @@
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li><span class="dropdown-item-text small text-muted">Role: <strong>${sessionScope.role}</strong></span></li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="/logout">Logout</a></li>
+                                <li><a class="dropdown-item text-danger" href="/logout"><i class="bi bi-box-arrow-right me-1"></i> Logout</a></li>
                             </ul>
                         </li>
                     </c:when>
                     <c:otherwise>
                         <li class="nav-item ms-3">
-                            <a class="nav-link" href="/login">Login</a>
+                            <a class="nav-link" href="/login"><i class="bi bi-box-arrow-in-right me-1"></i> Login</a>
                         </li>
                     </c:otherwise>
                 </c:choose>
