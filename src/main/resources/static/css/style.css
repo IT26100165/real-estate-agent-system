@@ -1,5 +1,5 @@
 /* ============================================
-   ESTATEHUB — FINAL CLEAN THEME (POLISHED)
+   ESTATEHUB — FINAL CLEAN THEME
    ============================================ */
 
 :root {
@@ -20,17 +20,19 @@
 
 * {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    box-sizing: border-box; /* Ensures padding doesn't break width */
+    box-sizing: border-box;
 }
 
 body {
-    background: var(--bg-subtle);
+    background-color: #fafafa;
+    background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+    background-size: 24px 24px;
     color: var(--text);
     font-size: 15px;
     line-height: 1.6;
     -webkit-font-smoothing: antialiased;
     margin: 0;
-    overflow-x: hidden; /* Prevents horizontal scrolling */
+    overflow-x: hidden;
 }
 
 /* ===== NAVBAR ===== */
@@ -39,6 +41,15 @@ body {
     border-bottom: 1px solid var(--border);
     padding: 0.75rem 0;
     width: 100%;
+    transition: all 0.3s;
+}
+
+.navbar-custom.sticky-top {
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 
 .navbar-custom .navbar-brand {
@@ -59,7 +70,7 @@ body {
     background: var(--primary);
     color: white;
     border-radius: 8px;
-    font-size: 1rem;
+    font-size: 1.1rem;
     font-weight: 700;
 }
 
@@ -130,12 +141,11 @@ body {
     margin: 0;
 }
 
-/* Fixes the top header on list pages (Title on left, Buttons on right) */
 .page-title-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Allows wrapping on small screens */
+    flex-wrap: wrap;
     gap: 1rem;
     margin-bottom: 1.5rem;
     padding-top: 1rem;
@@ -167,13 +177,14 @@ body {
     height: 100%;
     display: flex;
     flex-direction: column;
-    transition: all 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
 }
 
 .module-card:hover {
     border-color: #d1d5db;
-    box-shadow: var(--shadow-md);
-    transform: translateY(-2px);
+    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
+    transform: translateY(-4px);
 }
 
 .module-card-icon {
@@ -185,7 +196,7 @@ body {
     border-radius: 10px;
     background: #e0e7ff;
     color: var(--primary);
-    font-size: 1.3rem;
+    font-size: 1.4rem;
     margin-bottom: 1rem;
 }
 
@@ -210,6 +221,7 @@ body {
     border-radius: var(--radius);
     border: 1px solid var(--border);
     background: var(--bg);
+    padding: 1rem;
     box-shadow: var(--shadow-sm);
 }
 
@@ -217,7 +229,6 @@ body {
     width: 100%;
     margin-bottom: 0;
     border-collapse: collapse;
-    table-layout: auto; /* Allows table to fit screen */
 }
 
 .table-modern thead {
@@ -226,7 +237,7 @@ body {
 }
 
 .table-modern thead th {
-    padding: 0.85rem 0.75rem; /* Reduced padding to fit more content */
+    padding: 0.85rem 1.25rem;
     font-weight: 600;
     font-size: 0.75rem;
     text-transform: uppercase;
@@ -250,16 +261,84 @@ body {
 }
 
 .table-modern tbody td {
-    padding: 0.85rem 0.75rem; /* Reduced padding */
+    padding: 0.85rem 1.25rem;
     vertical-align: middle;
     font-size: 0.9rem;
+    white-space: nowrap;
 }
 
-/* Prevent the Action column from being squished */
-.table-modern th:last-child,
-.table-modern td:last-child {
-    padding-right: 1.5rem;
-    white-space: nowrap;
+/* ===== ENTERPRISE DATA UI ===== */
+.avatar-circle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e0e7ff;
+    color: #4f46e5;
+    font-weight: 700;
+    font-size: 0.85rem;
+    margin-right: 10px;
+    text-transform: uppercase;
+}
+
+.status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    display: inline-block;
+}
+.status-available, .status-confirmed, .status-approved { background: #d1fae5; color: #065f46; }
+.status-sold, .status-cancelled, .status-rejected { background: #fee2e2; color: #991b1b; }
+.status-rented, .status-pending { background: #fef3c7; color: #92400e; }
+
+/* ===== DASHBOARD STAT CARDS ===== */
+.stat-card-new {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
+    transition: all 0.2s;
+    height: 100%;
+}
+.stat-card-new:hover {
+    box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+    border-color: #d1d5db;
+    transform: translateY(-2px);
+}
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+.stat-icon-blue { background: #e0e7ff; color: #4f46e5; }
+.stat-icon-green { background: #d1fae5; color: #059669; }
+.stat-icon-purple { background: #f3e8ff; color: #9333ea; }
+.stat-icon-orange { background: #ffedd5; color: #ea580c; }
+
+.stat-content .stat-number {
+    font-size: 1.75rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 4px;
+}
+.stat-content .stat-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* ===== FORMS & BUTTONS ===== */
@@ -304,47 +383,20 @@ body {
 
 .btn-primary { background: var(--primary); border-color: var(--primary); color: white; }
 .btn-primary:hover { background: var(--primary-hover); border-color: var(--primary-hover); color: white; }
-
 .btn-outline-primary { border-color: var(--border); color: var(--text); background: var(--bg); }
 .btn-outline-primary:hover { background: var(--bg-subtle); border-color: #d1d5db; color: var(--text); }
-
 .btn-danger { background: #fef2f2; color: var(--danger); border-color: #fecaca; }
 .btn-danger:hover { background: var(--danger); color: white; border-color: var(--danger); }
-
 .btn-warning { background: #fffbeb; color: var(--warning); border-color: #fde68a; }
 .btn-warning:hover { background: var(--warning); color: white; border-color: var(--warning); }
 
-/* ===== STATS CARDS (Dashboard) ===== */
-.stat-card {
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    text-align: center;
-    box-shadow: var(--shadow-sm);
-    transition: all 0.2s ease;
-    height: 100%;
+/* ===== PREMIUM HERO SECTION ===== */
+.hero-section {
+    background: radial-gradient(circle at 50% -20%, #e0e7ff 0%, transparent 60%);
+    padding: 6rem 0 4rem;
 }
-
-.stat-card:hover {
-    box-shadow: var(--shadow-md);
-    border-color: var(--primary);
-}
-
-.stat-value {
-    font-size: 2.5rem;
-    font-weight: 800;
-    color: var(--primary);
-    line-height: 1.2;
-    margin-bottom: 0.25rem;
-}
-
-.stat-label {
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+.hero-section h1 {
+    color: #111827;
 }
 
 /* ===== MISC ===== */
@@ -358,147 +410,46 @@ body {
     font-size: 0.85rem;
 }
 
-/* Fix for the 8-column Agent table */
-.table-modern th:last-child,
-.table-modern td:last-child {
-    padding-right: 2rem !important;
-}
-
-/* ===== PREMIUM VISUAL UPGRADES ===== */
-
-/* Soft dot grid background */
-body {
-    background-color: #fafafa;
-    background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
-    background-size: 24px 24px;
-}
-
-/* Sticky Navbar with blur effect */
-.navbar-custom.sticky-top {
-    background: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border-bottom: 1px solid var(--border);
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-}
-
-/* Premium Hero Section */
-.hero-section {
-    background: radial-gradient(circle at 50% -20%, #e0e7ff 0%, transparent 60%);
-    padding: 6rem 0 4rem;
-}
-
-.hero-section h1 {
-    color: #111827;
-}
-
-/* Icon sizing for Bootstrap Icons */
-.brand-mark i {
-    font-size: 1.1rem;
-}
-
-.module-card-icon i {
-    font-size: 1.4rem;
-}
-
-/* Modern Cards */
-.module-card {
-    background: #ffffff;
+/* ===== DATATABLES CUSTOM STYLING ===== */
+.dataTables_wrapper .dataTables_filter input {
     border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+    margin-left: 0.5rem;
+    outline: none;
+    transition: border-color 0.15s;
 }
-
-.module-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.08);
-    border-color: #d1d5db;
+.dataTables_wrapper .dataTables_filter input:focus {
+    border-color: var(--primary);
 }
-
-/* Soft badges */
-.bg-primary-subtle {
-    background-color: #e0e7ff !important;
+.dataTables_wrapper .dataTables_length select {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.2rem 1.5rem 0.2rem 0.5rem;
+    font-size: 0.9rem;
 }
-.text-primary {
-    color: var(--primary) !important;
-}
-.border-primary-subtle {
-    border-color: #c7d2fe !important;
-}
-
-/* ===== ENTERPRISE DATA UI ===== */
-
-/* Avatars for Tables */
-.avatar-circle {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    background: #e0e7ff;
-    color: #4f46e5;
-    font-weight: 700;
+.dataTables_wrapper .dataTables_info {
     font-size: 0.85rem;
-    margin-right: 10px;
-    text-transform: uppercase;
-}
-
-/* Status Badges */
-.status-badge {
-    padding: 0.25rem 0.75rem;
-    border-radius: 50px;
-    font-size: 0.75rem;
-    font-weight: 600;
-    display: inline-block;
-}
-.status-available, .status-confirmed, .status-approved { background: #d1fae5; color: #065f46; }
-.status-sold, .status-cancelled, .status-rejected { background: #fee2e2; color: #991b1b; }
-.status-rented, .status-pending { background: #fef3c7; color: #92400e; }
-
-/* Dashboard Stat Cards */
-.stat-card-new {
-    background: #ffffff;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 1.5rem;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-    transition: all 0.2s;
-}
-.stat-card-new:hover {
-    box-shadow: 0 8px 15px rgba(0,0,0,0.05);
-    border-color: #d1d5db;
-    transform: translateY(-2px);
-}
-.stat-icon {
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-}
-.stat-icon-blue { background: #e0e7ff; color: #4f46e5; }
-.stat-icon-green { background: #d1fae5; color: #059669; }
-.stat-icon-purple { background: #f3e8ff; color: #9333ea; }
-.stat-icon-orange { background: #ffedd5; color: #ea580c; }
-
-.stat-content .stat-number {
-    font-size: 1.75rem;
-    font-weight: 800;
-    color: var(--text);
-    line-height: 1;
-    margin-bottom: 4px;
-}
-.stat-content .stat-label {
-    font-size: 0.8rem;
-    font-weight: 600;
     color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    padding-top: 1rem !important;
+}
+.dataTables_wrapper .dataTables_paginate {
+    padding-top: 0.75rem !important;
+}
+.page-item .page-link {
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    margin: 0 2px;
+    font-size: 0.85rem;
+}
+.page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+    color: white;
+}
+.page-item .page-link:hover {
+    background-color: var(--bg-subtle);
+    color: var(--primary);
 }

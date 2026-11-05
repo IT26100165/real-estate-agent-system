@@ -49,13 +49,78 @@
         </div>
     </div>
 
-    <h4 class="mb-3 fw-bold">Quick Actions</h4>
     <div class="row g-4">
-        <div class="col-md-3"><div class="module-card text-center"><div class="module-card-icon mx-auto"><i class="bi bi-people-fill"></i></div><h5 class="fw-bold mt-3">Agents</h5><a href="/agents/list" class="btn btn-primary w-100 mt-3">Manage</a></div></div>
-        <div class="col-md-3"><div class="module-card text-center"><div class="module-card-icon mx-auto"><i class="bi bi-person-badge-fill"></i></div><h5 class="fw-bold mt-3">Clients</h5><a href="/clients/list" class="btn btn-primary w-100 mt-3">Manage</a></div></div>
-        <div class="col-md-3"><div class="module-card text-center"><div class="module-card-icon mx-auto"><i class="bi bi-house-fill"></i></div><h5 class="fw-bold mt-3">Properties</h5><a href="/properties/list" class="btn btn-primary w-100 mt-3">Manage</a></div></div>
-        <div class="col-md-3"><div class="module-card text-center"><div class="module-card-icon mx-auto"><i class="bi bi-shield-fill"></i></div><h5 class="fw-bold mt-3">Admins</h5><a href="/admins/list" class="btn btn-primary w-100 mt-3">Manage</a></div></div>
+        <!-- Chart Column -->
+        <div class="col-md-5">
+            <div class="module-card h-100 p-4">
+                <h5 class="fw-bold mb-4">System Distribution</h5>
+                <div style="position: relative; height:300px; width:100%; display: flex; justify-content: center;">
+                    <canvas id="adminChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions Column -->
+        <div class="col-md-7">
+            <h5 class="fw-bold mb-3">Quick Actions</h5>
+            <div class="row g-4">
+                <div class="col-md-6">
+                    <div class="module-card text-center p-3">
+                        <div class="module-card-icon mx-auto"><i class="bi bi-people-fill"></i></div>
+                        <h6 class="fw-bold mt-2">Agents</h6>
+                        <a href="/agents/list" class="btn btn-outline-primary w-100 mt-2">Manage</a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="module-card text-center p-3">
+                        <div class="module-card-icon mx-auto"><i class="bi bi-person-badge-fill"></i></div>
+                        <h6 class="fw-bold mt-2">Clients</h6>
+                        <a href="/clients/list" class="btn btn-outline-primary w-100 mt-2">Manage</a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="module-card text-center p-3">
+                        <div class="module-card-icon mx-auto"><i class="bi bi-house-fill"></i></div>
+                        <h6 class="fw-bold mt-2">Properties</h6>
+                        <a href="/properties/list" class="btn btn-outline-primary w-100 mt-2">Manage</a>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="module-card text-center p-3">
+                        <div class="module-card-icon mx-auto"><i class="bi bi-shield-fill"></i></div>
+                        <h6 class="fw-bold mt-2">Admins</h6>
+                        <a href="/admins/list" class="btn btn-outline-primary w-100 mt-2">Manage</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const ctx = document.getElementById('adminChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Agents', 'Clients', 'Properties', 'Appointments'],
+                datasets: [{
+                    data: [${totalAgents}, ${totalClients}, ${totalProperties}, ${totalAppointments}],
+                    backgroundColor: ['#4f46e5', '#059669', '#9333ea', '#ea580c'],
+                    borderWidth: 0,
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%',
+                plugins: {
+                    legend: { position: 'bottom', labels: { usePointStyle: true, padding: 20 } }
+                }
+            }
+        });
+    });
+</script>
 
 <%@ include file="footer.jsp" %>
