@@ -7,7 +7,7 @@
     <div class="page-title-bar mb-4">
         <h2 class="page-title"><i class="bi bi-person-badge text-primary me-2"></i>Client Directory</h2>
         <div class="action-buttons">
-            <c:if test="${sessionScope.role == 'ADMIN'}">
+            <c:if test="${sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS'}">
                 <a href="/clients/add" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Client</a>
             </c:if>
             <a href="/clients/search" class="btn btn-outline-primary"><i class="bi bi-search me-1"></i> Search</a>
@@ -19,12 +19,8 @@
             <table class="table table-modern align-middle">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Client Name</th>
-                    <th>Email</th>
-                    <th>Preference</th>
-                    <th>Registered</th>
-                    <c:if test="${sessionScope.role == 'ADMIN'}">
+                    <th>ID</th><th>Client Name</th><th>Email</th><th>Preference</th><th>Registered</th>
+                    <c:if test="${sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS'}">
                         <th class="text-end">Actions</th>
                     </c:if>
                 </tr>
@@ -45,7 +41,7 @@
                         <td class="text-muted">${cl.email}</td>
                         <td><span class="badge bg-light text-dark border">${cl.propertyPreference}</span></td>
                         <td class="small text-muted">${cl.registrationDate}</td>
-                        <c:if test="${sessionScope.role == 'ADMIN'}">
+                        <c:if test="${sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS'}">
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
                                     <a href="/clients/edit/${cl.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>

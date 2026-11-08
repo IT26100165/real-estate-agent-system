@@ -1,6 +1,4 @@
-AG-1002|Mike Fernando|mike@test.com|pass123|Land|077-3333333|2.7|3
-AG-1003|John Bandara|john@test.com|pass123|Residential|077-1111111|5.0|1
-AG-1005|Lochana Thoradeniya|lochanabandara116@gmail.com|Lochz_376|Residential|0753203935|0.0|0
-AG-1006|Osama Bin-Laden|Osama@gmail.com|Osama123|Residential|0753203935|0.0|0
-AG-1007|TEST|Test@gmail.com|123456|Residential|077825426|0.0|0
-AG-1008|Sunil Bandara|sunil@gmail.com|sunil1976|Residential|0772305230|0.0|0
+AG-1001|John Silva|john@estatehub.com|pass123|Residential|0771234567|4.5|2
+AG-1002|Sarah Perera|sarah@estatehub.com|pass123|Commercial|0719876543|4.0|1
+AG-1003|Mike Fernando|mike@estatehub.com|pass123|Land|0773334444|0.0|0
+AG-1004|Nimal Jayasuriya|nimal@estatehub.com|pass123|Luxury|0755556666|0.0|0

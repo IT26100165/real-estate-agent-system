@@ -31,7 +31,8 @@ public class AppointmentController {
 
     private boolean canManage(HttpSession session) {
         String role = (String) session.getAttribute("role");
-        return "ADMIN".equals(role) || "AGENT".equals(role);
+        if ("ADMIN".equals(role)) return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
+        return "AGENT".equals(role);
     }
 
     @GetMapping("/list")
@@ -62,7 +63,6 @@ public class AppointmentController {
             model.addAttribute("agents", agentService.getAllAgents());
             return "appointment-add";
         }
-
         redirectAttributes.addFlashAttribute("message", "Appointment booked for " + date + "!");
         redirectAttributes.addFlashAttribute("toastType", "success");
         return "redirect:/appointments/list";
@@ -77,11 +77,8 @@ public class AppointmentController {
     @GetMapping("/search/results")
     public String searchAppointment(@RequestParam String id, Model model, HttpSession session) {
         if (session.getAttribute("role") == null) return "redirect:/login";
-
         Appointment appt = appointmentService.searchById(id);
-        if (appt == null) {
-            throw new ResourceNotFoundException("No appointment exists with the ID: " + id);
-        }
+        if (appt == null) throw new ResourceNotFoundException("No appointment exists with the ID: " + id);
         model.addAttribute("appointment", appt);
         model.addAttribute("searchedId", id);
         model.addAttribute("clientName", clientService.searchById(appt.getClientId()) != null ? clientService.searchById(appt.getClientId()).getName() : "Unknown");
@@ -92,11 +89,8 @@ public class AppointmentController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model, HttpSession session) {
         if (!canManage(session)) return "redirect:/appointments/list";
-
         Appointment appt = appointmentService.searchById(id);
-        if (appt == null) {
-            throw new ResourceNotFoundException("Cannot edit. Appointment not found with ID: " + id);
-        }
+        if (appt == null) throw new ResourceNotFoundException("Cannot edit. Appointment not found with ID: " + id);
         model.addAttribute("appointment", appt);
         model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("agents", agentService.getAllAgents());
@@ -107,7 +101,6 @@ public class AppointmentController {
     public String updateAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canManage(session)) return "redirect:/appointments/list";
         appointmentService.updateAppointment(new Appointment(id, clientId, agentId, date, timeSlot, status, propertyDescription, notes));
-
         redirectAttributes.addFlashAttribute("message", "Appointment updated successfully.");
         redirectAttributes.addFlashAttribute("toastType", "info");
         return "redirect:/appointments/list";
@@ -117,7 +110,6 @@ public class AppointmentController {
     public String deleteAppointment(@PathVariable String id, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canManage(session)) return "redirect:/appointments/list";
         appointmentService.deleteAppointment(id);
-
         redirectAttributes.addFlashAttribute("message", "Appointment cancelled and deleted.");
         redirectAttributes.addFlashAttribute("toastType", "error");
         return "redirect:/appointments/list";
@@ -143,4 +135,4 @@ public class AppointmentController {
         }
         return map;
     }
-} 
+}

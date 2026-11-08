@@ -16,12 +16,8 @@
             <table class="table table-modern align-middle">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Client</th>
-                    <th>Agent</th>
-                    <th>Schedule</th>
-                    <th>Status</th>
-                    <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'AGENT'}">
+                    <th>ID</th><th>Client</th><th>Agent</th><th>Schedule</th><th>Status</th>
+                    <c:if test="${(sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS') || sessionScope.role == 'AGENT'}">
                         <th class="text-end">Actions</th>
                     </c:if>
                 </tr>
@@ -38,21 +34,13 @@
                         </td>
                         <td>
                             <c:choose>
-                                <c:when test="${ap.status == 'Confirmed'}">
-                                    <span class="status-badge status-confirmed">Confirmed</span>
-                                </c:when>
-                                <c:when test="${ap.status == 'Pending'}">
-                                    <span class="status-badge status-pending">Pending</span>
-                                </c:when>
-                                <c:when test="${ap.status == 'Completed'}">
-                                    <span class="status-badge status-available">Completed</span>
-                                </c:when>
-                                <c:when test="${ap.status == 'Cancelled'}">
-                                    <span class="status-badge status-cancelled">Cancelled</span>
-                                </c:when>
+                                <c:when test="${ap.status == 'Confirmed'}"><span class="status-badge status-confirmed">Confirmed</span></c:when>
+                                <c:when test="${ap.status == 'Pending'}"><span class="status-badge status-pending">Pending</span></c:when>
+                                <c:when test="${ap.status == 'Completed'}"><span class="status-badge status-available">Completed</span></c:when>
+                                <c:when test="${ap.status == 'Cancelled'}"><span class="status-badge status-cancelled">Cancelled</span></c:when>
                             </c:choose>
                         </td>
-                        <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'AGENT'}">
+                        <c:if test="${(sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS') || sessionScope.role == 'AGENT'}">
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
                                     <a href="/appointments/edit/${ap.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>

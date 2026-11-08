@@ -28,7 +28,8 @@ public class PropertyController {
 
     private boolean canManage(HttpSession session) {
         String role = (String) session.getAttribute("role");
-        return "ADMIN".equals(role) || "AGENT".equals(role);
+        if ("ADMIN".equals(role)) return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
+        return "AGENT".equals(role);
     }
 
     @GetMapping("/list")
@@ -47,10 +48,9 @@ public class PropertyController {
     }
 
     @PostMapping("/add")
-    public String addProperty(@RequestParam String id, @RequestParam String title, @RequestParam String location, @RequestParam double price, @RequestParam String propertyType, @RequestParam int bedrooms, @RequestParam int bathrooms, @RequestParam String description, @RequestParam String listingAgentId, @RequestParam String availabilityStatus, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String addProperty(@RequestParam String id, @RequestParam String title, @RequestParam String location, @RequestParam double price, @RequestParam String propertyType, @RequestParam int bedrooms, @RequestParam int bathrooms, @RequestParam String description, @RequestParam String listingAgentId, @RequestParam String availabilityStatus, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canManage(session)) return "redirect:/properties/list";
         propertyService.addProperty(new Property(id, title, location, price, propertyType, bedrooms, bathrooms, description, listingAgentId, LocalDate.now().toString(), availabilityStatus));
-
         redirectAttributes.addFlashAttribute("message", "Property '" + title + "' listed successfully!");
         redirectAttributes.addFlashAttribute("toastType", "success");
         return "redirect:/properties/list";
@@ -62,9 +62,7 @@ public class PropertyController {
     @GetMapping("/search/results")
     public String searchProperty(@RequestParam String id, Model model) {
         Property property = propertyService.searchById(id);
-        if (property == null) {
-            throw new ResourceNotFoundException("No property exists with the ID: " + id);
-        }
+        if (property == null) throw new ResourceNotFoundException("No property exists with the ID: " + id);
         model.addAttribute("property", property);
         model.addAttribute("searchedId", id);
         Agent agent = agentService.searchById(property.getListingAgentId());
@@ -75,11 +73,8 @@ public class PropertyController {
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model, HttpSession session) {
         if (!canManage(session)) return "redirect:/properties/list";
-
         Property property = propertyService.searchById(id);
-        if (property == null) {
-            throw new ResourceNotFoundException("Cannot edit. Property not found with ID: " + id);
-        }
+        if (property == null) throw new ResourceNotFoundException("Cannot edit. Property not found with ID: " + id);
         model.addAttribute("property", property);
         model.addAttribute("agents", agentService.getAllAgents());
         return "property-edit";
@@ -89,7 +84,6 @@ public class PropertyController {
     public String updateProperty(@RequestParam String id, @RequestParam String title, @RequestParam String location, @RequestParam double price, @RequestParam String propertyType, @RequestParam int bedrooms, @RequestParam int bathrooms, @RequestParam String description, @RequestParam String listingAgentId, @RequestParam String listedDate, @RequestParam String availabilityStatus, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canManage(session)) return "redirect:/properties/list";
         propertyService.updateProperty(new Property(id, title, location, price, propertyType, bedrooms, bathrooms, description, listingAgentId, listedDate, availabilityStatus));
-
         redirectAttributes.addFlashAttribute("message", "Property details updated.");
         redirectAttributes.addFlashAttribute("toastType", "info");
         return "redirect:/properties/list";
@@ -99,7 +93,6 @@ public class PropertyController {
     public String deleteProperty(@PathVariable String id, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canManage(session)) return "redirect:/properties/list";
         propertyService.deleteProperty(id);
-
         redirectAttributes.addFlashAttribute("message", "Property deleted successfully.");
         redirectAttributes.addFlashAttribute("toastType", "error");
         return "redirect:/properties/list";

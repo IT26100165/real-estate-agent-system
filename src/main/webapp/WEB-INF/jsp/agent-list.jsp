@@ -7,7 +7,8 @@
     <div class="page-title-bar mb-4">
         <h2 class="page-title"><i class="bi bi-people text-primary me-2"></i>Real Estate Agents</h2>
         <div class="action-buttons">
-            <c:if test="${sessionScope.role == 'ADMIN'}">
+            <%-- ONLY FULL_ACCESS ADMINS CAN ADD --%>
+            <c:if test="${sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS'}">
                 <a href="/agents/add" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Agent</a>
             </c:if>
             <a href="/agents/search" class="btn btn-outline-primary"><i class="bi bi-search me-1"></i> Search</a>
@@ -24,7 +25,8 @@
                     <th>Email</th>
                     <th>Specialization</th>
                     <th>Rating</th>
-                    <c:if test="${sessionScope.role == 'ADMIN'}">
+                    <%-- ONLY FULL_ACCESS ADMINS SEE ACTIONS COLUMN --%>
+                    <c:if test="${sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS'}">
                         <th class="text-end">Actions</th>
                     </c:if>
                 </tr>
@@ -34,7 +36,6 @@
                     <tr>
                         <td><span class="text-muted fw-bold">${a.id}</span></td>
                         <td>
-                            <!-- AVATAR INITIALS -->
                             <div class="d-flex align-items-center">
                                 <div class="avatar-circle">${fn:substring(a.name, 0, 1)}</div>
                                 <div>
@@ -46,13 +47,12 @@
                         <td class="text-muted">${a.email}</td>
                         <td><span class="badge bg-light text-dark border">${a.specialization}</span></td>
                         <td>
-                            <!-- BEAUTIFUL RATING -->
                             <div class="d-flex align-items-center gap-1">
                                 <span class="text-warning fw-bold"><i class="bi bi-star-fill"></i> ${a.averageRating}</span>
                                 <span class="small text-muted">(${a.totalReviews})</span>
                             </div>
                         </td>
-                        <c:if test="${sessionScope.role == 'ADMIN'}">
+                        <c:if test="${sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS'}">
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
                                     <a href="/agents/edit/${a.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>

@@ -1,6 +1,4 @@
-PROP-4001|Luxury Apartment|Colombo 07|2.5E7|Apartment|3|2|Sea view modern apartment|AG-1002|2026-09-01|Available
-PROP-4002|Commercial Space|Kandy|1.5E7|Commercial|0|2|Prime location for retail|AG-1002|2026-09-05|Available
-PROP-4003|Beach House|Galle|4.5E7|House|4|3|Beachfront property with pool|AG-1003|2026-09-10|Sold
-PROP-4004|Residential Land|Negombo|8000000.0|Land|0|0|10 perches, clear title|AG-1003|2026-09-12|Available
-PROP-4005|Modern Villa|Colombo 05|8.5E7|Luxury|5|4|Premium villa with garden|AG-1005|2026-09-15|Available
-PROP-4006|Luxery Apartment|Colombo 11|300000.0|Apartment|4|2|A good house for a family|AG-1005|2026-10-11|Available
+PROP-4001|Luxury 3BR Apartment|Colombo 07|45000000|Apartment|3|2|Sea view, fully furnished, 24/7 security|AG-1001|2026-10-10|Available
+PROP-4002|Commercial Building|Kandy|85000000|Commercial|0|0|Prime location, perfect for retail or office space|AG-1002|2026-10-12|Available
+PROP-4003|10 Perch Land|Negombo|15000000|Land|0|0|Clear title, close to the beach road|AG-1003|2026-10-15|Available
+PROP-4004|Modern Villa|Colombo 05|120000000|Luxury|4|4|Private pool, smart home system, fully furnished|AG-1004|2026-10-20|Available

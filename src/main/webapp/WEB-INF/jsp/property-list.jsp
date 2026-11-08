@@ -7,7 +7,7 @@
     <div class="page-title-bar mb-4">
         <h2 class="page-title"><i class="bi bi-house-door text-primary me-2"></i>Property Listings</h2>
         <div class="action-buttons">
-            <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'AGENT'}">
+            <c:if test="${(sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS') || sessionScope.role == 'AGENT'}">
                 <a href="/properties/add" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Property</a>
             </c:if>
             <a href="/properties/search" class="btn btn-outline-primary"><i class="bi bi-search me-1"></i> Search</a>
@@ -19,11 +19,8 @@
             <table class="table table-modern align-middle">
                 <thead>
                 <tr>
-                    <th>Property</th>
-                    <th>Location</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'AGENT'}">
+                    <th>Property</th><th>Location</th><th>Price</th><th>Status</th>
+                    <c:if test="${(sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS') || sessionScope.role == 'AGENT'}">
                         <th class="text-end">Actions</th>
                     </c:if>
                 </tr>
@@ -38,20 +35,13 @@
                         <td class="text-muted"><i class="bi bi-geo-alt me-1"></i>${pr.location}</td>
                         <td class="fw-bold">LKR ${pr.price}</td>
                         <td>
-                            <!-- STATUS BADGES -->
                             <c:choose>
-                                <c:when test="${pr.availabilityStatus == 'Available'}">
-                                    <span class="status-badge status-available">Available</span>
-                                </c:when>
-                                <c:when test="${pr.availabilityStatus == 'Sold'}">
-                                    <span class="status-badge status-sold">Sold</span>
-                                </c:when>
-                                <c:when test="${pr.availabilityStatus == 'Rented'}">
-                                    <span class="status-badge status-rented">Rented</span>
-                                </c:when>
+                                <c:when test="${pr.availabilityStatus == 'Available'}"><span class="status-badge status-available">Available</span></c:when>
+                                <c:when test="${pr.availabilityStatus == 'Sold'}"><span class="status-badge status-sold">Sold</span></c:when>
+                                <c:when test="${pr.availabilityStatus == 'Rented'}"><span class="status-badge status-rented">Rented</span></c:when>
                             </c:choose>
                         </td>
-                        <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'AGENT'}">
+                        <c:if test="${(sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS') || sessionScope.role == 'AGENT'}">
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
                                     <a href="/properties/edit/${pr.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>

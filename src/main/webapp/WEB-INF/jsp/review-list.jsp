@@ -16,12 +16,8 @@
             <table class="table table-modern align-middle">
                 <thead>
                 <tr>
-                    <th>ID</th>
-                    <th>Client</th>
-                    <th>Agent</th>
-                    <th>Rating</th>
-                    <th>Moderation</th>
-                    <c:if test="${sessionScope.role == 'ADMIN'}">
+                    <th>ID</th><th>Client</th><th>Agent</th><th>Rating</th><th>Moderation</th>
+                    <c:if test="${sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS'}">
                         <th class="text-end">Actions</th>
                     </c:if>
                 </tr>
@@ -40,18 +36,12 @@
                         </td>
                         <td>
                             <c:choose>
-                                <c:when test="${rv.moderationStatus == 'Approved'}">
-                                    <span class="status-badge status-approved">Approved</span>
-                                </c:when>
-                                <c:when test="${rv.moderationStatus == 'Pending'}">
-                                    <span class="status-badge status-pending">Pending</span>
-                                </c:when>
-                                <c:when test="${rv.moderationStatus == 'Rejected'}">
-                                    <span class="status-badge status-rejected">Rejected</span>
-                                </c:when>
+                                <c:when test="${rv.moderationStatus == 'Approved'}"><span class="status-badge status-approved">Approved</span></c:when>
+                                <c:when test="${rv.moderationStatus == 'Pending'}"><span class="status-badge status-pending">Pending</span></c:when>
+                                <c:when test="${rv.moderationStatus == 'Rejected'}"><span class="status-badge status-rejected">Rejected</span></c:when>
                             </c:choose>
                         </td>
-                        <c:if test="${sessionScope.role == 'ADMIN'}">
+                        <c:if test="${sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS'}">
                             <td class="text-end">
                                 <div class="d-flex justify-content-end gap-2">
                                     <a href="/reviews/edit/${rv.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
