@@ -12,7 +12,6 @@
             </c:choose>
         </h2>
         <div class="action-buttons">
-            <%-- ONLY CLIENTS CAN ADD REVIEWS --%>
             <c:if test="${sessionScope.role == 'CLIENT'}">
                 <a href="/reviews/add" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Review</a>
             </c:if>
@@ -26,7 +25,8 @@
                 <thead>
                 <tr>
                     <th>ID</th><th>Client</th><th>Agent</th><th>Rating</th><th>Moderation</th>
-                    <c:if test="${sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS'}">
+                    <%-- Show Actions column if Admin OR Client --%>
+                    <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'CLIENT'}">
                         <th class="text-end">Actions</th>
                     </c:if>
                 </tr>
@@ -50,12 +50,15 @@
                                 <c:when test="${rv.moderationStatus == 'Rejected'}"><span class="status-badge status-rejected">Rejected</span></c:when>
                             </c:choose>
                         </td>
-                        <c:if test="${sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS'}">
+                        <c:if test="${sessionScope.role == 'ADMIN' || sessionScope.role == 'CLIENT'}">
                             <td class="text-end">
-                                <div class="d-flex justify-content-end gap-2">
-                                    <a href="/reviews/edit/${rv.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
-                                    <a href="/reviews/delete/${rv.id}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')"><i class="bi bi-trash"></i></a>
-                                </div>
+                                <%-- Show buttons if Admin (Full Access) OR if Client owns the review --%>
+                                <c:if test="${(sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS') || (sessionScope.role == 'CLIENT' && sessionScope.user.id == rv.clientId)}">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a href="/reviews/edit/${rv.id}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                                        <a href="/reviews/delete/${rv.id}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete?')"><i class="bi bi-trash"></i></a>
+                                    </div>
+                                </c:if>
                             </td>
                         </c:if>
                     </tr>

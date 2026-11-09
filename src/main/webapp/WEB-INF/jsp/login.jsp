@@ -1,9 +1,9 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 <%@ taglib prefix="c" uri="jakarta.tags.core" %>
 <%@ include file="header.jsp" %>
 
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 75vh;">
-    <div class="card module-card p-4 fade-in" style="max-width: 420px; width: 100%;">
+    <div class="card module-card p-4 fade-in shadow-sm" style="max-width: 420px; width: 100%;">
         <div class="text-center mb-4">
             <div class="brand-mark mx-auto mb-3" style="width: 48px; height: 48px; font-size: 1.5rem;">
                 <i class="bi bi-buildings"></i>
@@ -36,9 +36,12 @@
 
         <hr class="my-4 text-muted">
 
-        <p class="text-center mb-0 small text-muted">
-            Don't have an account? <a href="/agents/add" class="text-decoration-none fw-bold">Register as Agent</a>
-        </p>
+        <div class="text-center small text-muted">
+            <p class="mb-1">Don't have an account?</p>
+            <a href="/clients/register" class="text-decoration-none fw-bold me-2">Register as Client</a>
+            <span class="text-muted">|</span>
+            <a href="/agents/register" class="text-decoration-none fw-bold ms-2">Register as Agent</a>
+        </div>
     </div>
 </div>
 

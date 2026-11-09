@@ -31,9 +31,28 @@ public class ReviewController {
     @Autowired
     private AgentService agentService;
 
+    // Helper: Can they moderate? (Full Access Admins)
     private boolean canModerate(HttpSession session) {
         return "ADMIN".equals(session.getAttribute("role"))
                 && "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
+    }
+
+    // Helper: Can they edit/delete THIS specific review?
+    private boolean canModifySpecificReview(HttpSession session, Review review) {
+        User user = (User) session.getAttribute("user");
+        if (user == null) return false;
+
+        // Admins can moderate any review
+        if ("ADMIN".equals(user.getRole())) {
+            return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
+        }
+
+        // Clients can only edit/delete their own reviews
+        if ("CLIENT".equals(user.getRole())) {
+            return user.getId().equals(review.getClientId());
+        }
+
+        return false;
     }
 
     private boolean canAddReview(HttpSession session) {
@@ -107,13 +126,15 @@ public class ReviewController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canModerate(session)) {
-            redirectAttributes.addFlashAttribute("message", "Access Denied: Only Admins can moderate reviews.");
+        Review review = reviewService.searchById(id);
+        if (review == null) throw new ResourceNotFoundException("Cannot edit. Review not found with ID: " + id);
+
+        if (!canModifySpecificReview(session, review)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own reviews.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/reviews/list";
         }
-        Review review = reviewService.searchById(id);
-        if (review == null) throw new ResourceNotFoundException("Cannot edit. Review not found with ID: " + id);
+
         model.addAttribute("review", review);
         model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("agents", agentService.getAllAgents());
@@ -122,22 +143,34 @@ public class ReviewController {
 
     @PostMapping("/edit")
     public String updateReview(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, @RequestParam String reviewDate, @RequestParam String moderationStatus, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canModerate(session)) return "redirect:/reviews/list";
+        Review existing = reviewService.searchById(id);
+        if (existing == null) throw new ResourceNotFoundException("Review not found.");
+
+        if (!canModifySpecificReview(session, existing)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own reviews.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/reviews/list";
+        }
+
         reviewService.updateReview(new Review(id, clientId, agentId, rating, comment, reviewDate, moderationStatus));
-        redirectAttributes.addFlashAttribute("message", "Review moderated successfully.");
+        redirectAttributes.addFlashAttribute("message", "Review updated successfully.");
         redirectAttributes.addFlashAttribute("toastType", "info");
         return "redirect:/reviews/list";
     }
 
     @GetMapping("/delete/{id}")
     public String deleteReview(@PathVariable String id, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canModerate(session)) {
-            redirectAttributes.addFlashAttribute("message", "Access Denied: Only Admins can delete reviews.");
+        Review existing = reviewService.searchById(id);
+        if (existing == null) throw new ResourceNotFoundException("Review not found.");
+
+        if (!canModifySpecificReview(session, existing)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only delete your own reviews.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/reviews/list";
         }
+
         reviewService.deleteReview(id);
-        redirectAttributes.addFlashAttribute("message", "Review permanently deleted.");
+        redirectAttributes.addFlashAttribute("message", "Review deleted successfully.");
         redirectAttributes.addFlashAttribute("toastType", "error");
         return "redirect:/reviews/list";
     }

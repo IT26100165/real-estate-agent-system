@@ -20,7 +20,6 @@ public class ReviewService {
     @PostConstruct
     public void init() {
         loadFromFile();
-        // Recalculate all agent ratings on startup (keeps data consistent)
         recalculateAllAgentRatings();
     }
 
@@ -40,23 +39,16 @@ public class ReviewService {
         FileManager.writeFile("reviews.txt", lines);
     }
 
-    // CREATE - then update agent rating
     public boolean addReview(Review review) {
-        if (searchById(review.getId()) != null) {
-            return false; // duplicate ID
-        }
+        if (searchById(review.getId()) != null) return false;
         reviews.add(review);
         saveToFile();
-        recalculateAgentRating(review.getAgentId()); // ⭐ INTEGRATION
+        recalculateAgentRating(review.getAgentId());
         return true;
     }
 
-    // READ - all
-    public List<Review> getAllReviews() {
-        return reviews;
-    }
+    public List<Review> getAllReviews() { return reviews; }
 
-    // READ - by ID
     public Review searchById(String id) {
         for (Review r : reviews) {
             if (r.getId().equals(id)) return r;
@@ -64,7 +56,6 @@ public class ReviewService {
         return null;
     }
 
-    // READ - by Agent
     public List<Review> getByAgentId(String agentId) {
         List<Review> result = new ArrayList<>();
         for (Review r : reviews) {
@@ -73,7 +64,6 @@ public class ReviewService {
         return result;
     }
 
-    // READ - by Client
     public List<Review> getByClientId(String clientId) {
         List<Review> result = new ArrayList<>();
         for (Review r : reviews) {
@@ -82,23 +72,18 @@ public class ReviewService {
         return result;
     }
 
-    // UPDATE - then update agent rating
     public boolean updateReview(Review updated) {
         Review existing = searchById(updated.getId());
         if (existing == null) return false;
 
         String oldAgentId = existing.getAgentId();
-
         existing.setClientId(updated.getClientId());
         existing.setAgentId(updated.getAgentId());
         existing.setRating(updated.getRating());
         existing.setComment(updated.getComment());
         existing.setModerationStatus(updated.getModerationStatus());
-        // reviewDate does not change
 
         saveToFile();
-
-        // If agent changed, recalculate both
         recalculateAgentRating(oldAgentId);
         if (!oldAgentId.equals(updated.getAgentId())) {
             recalculateAgentRating(updated.getAgentId());
@@ -106,47 +91,42 @@ public class ReviewService {
         return true;
     }
 
-    // DELETE - then update agent rating
     public boolean deleteReview(String id) {
         Review existing = searchById(id);
         if (existing == null) return false;
         String agentId = existing.getAgentId();
         reviews.remove(existing);
         saveToFile();
-        recalculateAgentRating(agentId); // ⭐ INTEGRATION
+        recalculateAgentRating(agentId);
         return true;
     }
 
-    // ⭐ INTEGRATION: Recalculate one agent's average and push to agents.txt
     public void recalculateAgentRating(String agentId) {
         List<Review> agentReviews = getByAgentId(agentId);
+        List<Review> validReviews = new ArrayList<>();
 
-        // Only count approved reviews (optional — remove this filter if you want all)
-        List<Review> approved = new ArrayList<>();
+        // ⭐ FIX: ONLY count reviews that are explicitly 'Approved'
         for (Review r : agentReviews) {
-            if (!r.getModerationStatus().equals("Rejected")) {
-                approved.add(r);
+            if ("Approved".equals(r.getModerationStatus())) {
+                validReviews.add(r);
             }
         }
 
-        if (approved.isEmpty()) {
+        if (validReviews.isEmpty()) {
             agentService.updateAgentRating(agentId, 0.0, 0);
             return;
         }
 
         double sum = 0;
-        for (Review r : approved) {
+        for (Review r : validReviews) {
             sum += r.getRating();
         }
-        double avg = sum / approved.size();
-
-        // Round to 1 decimal
+        double avg = sum / validReviews.size();
         avg = Math.round(avg * 10.0) / 10.0;
 
-        agentService.updateAgentRating(agentId, avg, approved.size());
+        agentService.updateAgentRating(agentId, avg, validReviews.size());
     }
 
-    // Recalculate all on startup
     private void recalculateAllAgentRatings() {
         List<String> agentIds = new ArrayList<>();
         for (Review r : reviews) {

@@ -1,3 +1,4 @@
 CL-2001|Michael Jayasuriya|michael@email.com|pass123|0771112222|Colombo 07|Apartment|2026-10-01
 CL-2002|Nimal Fernando|nimal@email.com|pass123|0715556666|Kandy|House|2026-10-05
 CL-2003|Priya Sharma|priya@email.com|pass123|0779998888|Galle|Land|2026-10-15
+CL-2005|Namal|Namal@gmail.com|1234|077-1234567|Colombo|Apartment|2026-11-09
