@@ -6,8 +6,7 @@ public class Client extends User {
     private String propertyPreference;
     private String registrationDate;
 
-    public Client(String id, String name, String email, String password,
-                  String phoneNumber, String address,
+    public Client(String id, String name, String email, String password, String phoneNumber, String address,
                   String propertyPreference, String registrationDate) {
         super(id, name, email, password);
         this.phoneNumber = phoneNumber;
