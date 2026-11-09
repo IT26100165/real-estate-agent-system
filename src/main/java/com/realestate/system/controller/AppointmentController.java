@@ -31,7 +31,6 @@ public class AppointmentController {
     @Autowired
     private AgentService agentService;
 
-    // ONLY CLIENTS AND FULL-ACCESS ADMINS CAN BOOK
     private boolean canBook(HttpSession session) {
         String role = (String) session.getAttribute("role");
         if ("ADMIN".equals(role)) {
@@ -40,7 +39,6 @@ public class AppointmentController {
         return "CLIENT".equals(role);
     }
 
-    // ONLY FULL-ACCESS ADMINS OR THE ASSIGNED AGENT CAN MODIFY
     private boolean canModifySpecificAppointment(HttpSession session, Appointment appointment) {
         String role = (String) session.getAttribute("role");
         if ("ADMIN".equals(role)) return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
@@ -58,7 +56,6 @@ public class AppointmentController {
         User user = (User) session.getAttribute("user");
         List<Appointment> appointments = appointmentService.getAllAppointments();
 
-        // DATA ISOLATION
         if ("AGENT".equals(user.getRole())) {
             appointments = appointments.stream().filter(a -> a.getAgentId().equals(user.getId())).collect(Collectors.toList());
         } else if ("CLIENT".equals(user.getRole())) {
@@ -78,19 +75,34 @@ public class AppointmentController {
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/appointments/list";
         }
-        model.addAttribute("clients", clientService.getAllClients());
+
+        User user = (User) session.getAttribute("user");
+
+        // Only load the full client list if an Admin is booking.
+        // If a client is booking, they don't need to see other clients.
+        if ("ADMIN".equals(user.getRole())) {
+            model.addAttribute("clients", clientService.getAllClients());
+        }
+
         model.addAttribute("agents", agentService.getAllAgents());
         return "appointment-add";
     }
 
     @PostMapping("/add")
-    public String addAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String addAppointment(@RequestParam(required = false) String clientId, @RequestParam String id, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canBook(session)) return "redirect:/appointments/list";
+
+        User user = (User) session.getAttribute("user");
+
+        // SPOOFING PROTECTION: If it's a client booking, force their own ID.
+        if ("CLIENT".equals(user.getRole())) {
+            clientId = user.getId();
+        }
 
         Appointment appt = new Appointment(id, clientId, agentId, date, timeSlot, status, propertyDescription, notes);
         if (!appointmentService.addAppointment(appt)) {
             model.addAttribute("error", "Conflict detected or Duplicate ID.");
-            model.addAttribute("clients", clientService.getAllClients());
+            if ("ADMIN".equals(user.getRole())) model.addAttribute("clients", clientService.getAllClients());
             model.addAttribute("agents", agentService.getAllAgents());
             return "appointment-add";
         }
@@ -98,6 +110,8 @@ public class AppointmentController {
         redirectAttributes.addFlashAttribute("toastType", "success");
         return "redirect:/appointments/list";
     }
+
+    // ... Keep the rest of the methods (search, edit, delete) exactly as they are in your current file.
 
     @GetMapping("/search")
     public String showSearchForm(HttpSession session) {
@@ -121,13 +135,11 @@ public class AppointmentController {
     public String showEditForm(@PathVariable String id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         Appointment appt = appointmentService.searchById(id);
         if (appt == null) throw new ResourceNotFoundException("Cannot edit. Appointment not found with ID: " + id);
-
         if (!canModifySpecificAppointment(session, appt)) {
             redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own appointments.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/appointments/list";
         }
-
         model.addAttribute("appointment", appt);
         model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("agents", agentService.getAllAgents());
@@ -138,13 +150,11 @@ public class AppointmentController {
     public String updateAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, HttpSession session, RedirectAttributes redirectAttributes) {
         Appointment appt = appointmentService.searchById(id);
         if (appt == null) throw new ResourceNotFoundException("Appointment not found.");
-
         if (!canModifySpecificAppointment(session, appt)) {
             redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own appointments.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/appointments/list";
         }
-
         appointmentService.updateAppointment(new Appointment(id, clientId, agentId, date, timeSlot, status, propertyDescription, notes));
         redirectAttributes.addFlashAttribute("message", "Appointment updated successfully.");
         redirectAttributes.addFlashAttribute("toastType", "info");
@@ -155,13 +165,11 @@ public class AppointmentController {
     public String deleteAppointment(@PathVariable String id, HttpSession session, RedirectAttributes redirectAttributes) {
         Appointment appt = appointmentService.searchById(id);
         if (appt == null) throw new ResourceNotFoundException("Appointment not found.");
-
         if (!canModifySpecificAppointment(session, appt)) {
             redirectAttributes.addFlashAttribute("message", "Access Denied: You can only delete your own appointments.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/appointments/list";
         }
-
         appointmentService.deleteAppointment(id);
         redirectAttributes.addFlashAttribute("message", "Appointment cancelled and deleted.");
         redirectAttributes.addFlashAttribute("toastType", "error");
