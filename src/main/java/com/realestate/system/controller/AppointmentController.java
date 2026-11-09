@@ -4,6 +4,7 @@ import com.realestate.system.exception.ResourceNotFoundException;
 import com.realestate.system.model.Agent;
 import com.realestate.system.model.Appointment;
 import com.realestate.system.model.Client;
+import com.realestate.system.model.User;
 import com.realestate.system.service.AgentService;
 import com.realestate.system.service.AppointmentService;
 import com.realestate.system.service.ClientService;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/appointments")
@@ -29,16 +31,40 @@ public class AppointmentController {
     @Autowired
     private AgentService agentService;
 
-    private boolean canManage(HttpSession session) {
+    // ONLY CLIENTS AND FULL-ACCESS ADMINS CAN BOOK
+    private boolean canBook(HttpSession session) {
+        String role = (String) session.getAttribute("role");
+        if ("ADMIN".equals(role)) {
+            return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
+        }
+        return "CLIENT".equals(role);
+    }
+
+    // ONLY FULL-ACCESS ADMINS OR THE ASSIGNED AGENT CAN MODIFY
+    private boolean canModifySpecificAppointment(HttpSession session, Appointment appointment) {
         String role = (String) session.getAttribute("role");
         if ("ADMIN".equals(role)) return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
-        return "AGENT".equals(role);
+        if ("AGENT".equals(role)) {
+            User currentUser = (User) session.getAttribute("user");
+            return currentUser != null && currentUser.getId().equals(appointment.getAgentId());
+        }
+        return false;
     }
 
     @GetMapping("/list")
     public String listAppointments(Model model, HttpSession session) {
         if (session.getAttribute("role") == null) return "redirect:/login";
+
+        User user = (User) session.getAttribute("user");
         List<Appointment> appointments = appointmentService.getAllAppointments();
+
+        // DATA ISOLATION
+        if ("AGENT".equals(user.getRole())) {
+            appointments = appointments.stream().filter(a -> a.getAgentId().equals(user.getId())).collect(Collectors.toList());
+        } else if ("CLIENT".equals(user.getRole())) {
+            appointments = appointments.stream().filter(a -> a.getClientId().equals(user.getId())).collect(Collectors.toList());
+        }
+
         model.addAttribute("appointments", appointments);
         model.addAttribute("clientNames", buildClientNameMap(appointments));
         model.addAttribute("agentNames", buildAgentNameMap(appointments));
@@ -46,8 +72,12 @@ public class AppointmentController {
     }
 
     @GetMapping("/add")
-    public String showAddForm(Model model, HttpSession session) {
-        if (session.getAttribute("role") == null) return "redirect:/login";
+    public String showAddForm(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        if (!canBook(session)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: Agents and Read-Only Admins cannot book appointments.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/appointments/list";
+        }
         model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("agents", agentService.getAllAgents());
         return "appointment-add";
@@ -55,7 +85,8 @@ public class AppointmentController {
 
     @PostMapping("/add")
     public String addAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (session.getAttribute("role") == null) return "redirect:/login";
+        if (!canBook(session)) return "redirect:/appointments/list";
+
         Appointment appt = new Appointment(id, clientId, agentId, date, timeSlot, status, propertyDescription, notes);
         if (!appointmentService.addAppointment(appt)) {
             model.addAttribute("error", "Conflict detected or Duplicate ID.");
@@ -87,10 +118,16 @@ public class AppointmentController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable String id, Model model, HttpSession session) {
-        if (!canManage(session)) return "redirect:/appointments/list";
+    public String showEditForm(@PathVariable String id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         Appointment appt = appointmentService.searchById(id);
         if (appt == null) throw new ResourceNotFoundException("Cannot edit. Appointment not found with ID: " + id);
+
+        if (!canModifySpecificAppointment(session, appt)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own appointments.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/appointments/list";
+        }
+
         model.addAttribute("appointment", appt);
         model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("agents", agentService.getAllAgents());
@@ -99,7 +136,15 @@ public class AppointmentController {
 
     @PostMapping("/edit")
     public String updateAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canManage(session)) return "redirect:/appointments/list";
+        Appointment appt = appointmentService.searchById(id);
+        if (appt == null) throw new ResourceNotFoundException("Appointment not found.");
+
+        if (!canModifySpecificAppointment(session, appt)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own appointments.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/appointments/list";
+        }
+
         appointmentService.updateAppointment(new Appointment(id, clientId, agentId, date, timeSlot, status, propertyDescription, notes));
         redirectAttributes.addFlashAttribute("message", "Appointment updated successfully.");
         redirectAttributes.addFlashAttribute("toastType", "info");
@@ -108,7 +153,15 @@ public class AppointmentController {
 
     @GetMapping("/delete/{id}")
     public String deleteAppointment(@PathVariable String id, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canManage(session)) return "redirect:/appointments/list";
+        Appointment appt = appointmentService.searchById(id);
+        if (appt == null) throw new ResourceNotFoundException("Appointment not found.");
+
+        if (!canModifySpecificAppointment(session, appt)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only delete your own appointments.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/appointments/list";
+        }
+
         appointmentService.deleteAppointment(id);
         redirectAttributes.addFlashAttribute("message", "Appointment cancelled and deleted.");
         redirectAttributes.addFlashAttribute("toastType", "error");

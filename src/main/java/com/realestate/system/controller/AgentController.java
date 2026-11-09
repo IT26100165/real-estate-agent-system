@@ -17,14 +17,18 @@ public class AgentController {
     @Autowired
     private AgentService agentService;
 
-    // Helper method to ensure only FULL_ACCESS admins can modify
     private boolean canModify(HttpSession session) {
         return "ADMIN".equals(session.getAttribute("role"))
                 && "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
     }
 
     @GetMapping("/list")
-    public String listAgents(Model model) {
+    public String listAgents(Model model, HttpSession session) {
+        // DATA ISOLATION: Agents cannot see other agents.
+        if ("AGENT".equals(session.getAttribute("role"))) {
+            return "redirect:/dashboard";
+        }
+
         model.addAttribute("agents", agentService.getAllAgentsSortedByRating());
         return "agent-list";
     }
@@ -50,12 +54,20 @@ public class AgentController {
     }
 
     @GetMapping("/search")
-    public String showSearchForm() {
+    public String showSearchForm(HttpSession session) {
+        // DATA ISOLATION: Agents cannot search for other agents.
+        if ("AGENT".equals(session.getAttribute("role"))) {
+            return "redirect:/dashboard";
+        }
         return "agent-search";
     }
 
     @GetMapping("/search/results")
-    public String searchAgent(@RequestParam String id, Model model) {
+    public String searchAgent(@RequestParam String id, Model model, HttpSession session) {
+        if ("AGENT".equals(session.getAttribute("role"))) {
+            return "redirect:/dashboard";
+        }
+
         Agent agent = agentService.searchById(id);
         if (agent == null) throw new ResourceNotFoundException("No agent exists with the ID: " + id);
         model.addAttribute("agent", agent);

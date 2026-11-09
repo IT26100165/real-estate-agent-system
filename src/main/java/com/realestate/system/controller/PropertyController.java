@@ -3,6 +3,7 @@ package com.realestate.system.controller;
 import com.realestate.system.exception.ResourceNotFoundException;
 import com.realestate.system.model.Agent;
 import com.realestate.system.model.Property;
+import com.realestate.system.model.User;
 import com.realestate.system.service.AgentService;
 import com.realestate.system.service.PropertyService;
 import jakarta.servlet.http.HttpSession;
@@ -16,6 +17,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/properties")
@@ -26,30 +28,56 @@ public class PropertyController {
     @Autowired
     private AgentService agentService;
 
-    private boolean canManage(HttpSession session) {
+    private boolean canAdd(HttpSession session) {
         String role = (String) session.getAttribute("role");
         if ("ADMIN".equals(role)) return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
         return "AGENT".equals(role);
     }
 
+    private boolean canModifySpecificProperty(HttpSession session, Property property) {
+        String role = (String) session.getAttribute("role");
+        if ("ADMIN".equals(role)) return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
+        if ("AGENT".equals(role)) {
+            User currentUser = (User) session.getAttribute("user");
+            return currentUser != null && currentUser.getId().equals(property.getListingAgentId());
+        }
+        return false;
+    }
+
     @GetMapping("/list")
-    public String listProperties(Model model) {
+    public String listProperties(Model model, HttpSession session) {
         List<Property> properties = propertyService.getAllProperties();
+
+        // Data Isolation: If Agent, only show their properties
+        User user = (User) session.getAttribute("user");
+        if (user != null && "AGENT".equals(user.getRole())) {
+            properties = properties.stream()
+                    .filter(p -> p.getListingAgentId().equals(user.getId()))
+                    .collect(Collectors.toList());
+        }
+
         model.addAttribute("properties", properties);
         model.addAttribute("agentNames", buildAgentNameMap(properties));
         return "property-list";
     }
 
+    // ... (Keep the rest of the methods exactly the same as the previous step)
+
     @GetMapping("/add")
     public String showAddForm(Model model, HttpSession session) {
-        if (!canManage(session)) return "redirect:/properties/list";
-        model.addAttribute("agents", agentService.getAllAgents());
+        if (!canAdd(session)) return "redirect:/properties/list";
+        User user = (User) session.getAttribute("user");
+        if ("AGENT".equals(user.getRole())) {
+            model.addAttribute("agents", List.of(agentService.searchById(user.getId())));
+        } else {
+            model.addAttribute("agents", agentService.getAllAgents());
+        }
         return "property-add";
     }
 
     @PostMapping("/add")
     public String addProperty(@RequestParam String id, @RequestParam String title, @RequestParam String location, @RequestParam double price, @RequestParam String propertyType, @RequestParam int bedrooms, @RequestParam int bathrooms, @RequestParam String description, @RequestParam String listingAgentId, @RequestParam String availabilityStatus, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canManage(session)) return "redirect:/properties/list";
+        if (!canAdd(session)) return "redirect:/properties/list";
         propertyService.addProperty(new Property(id, title, location, price, propertyType, bedrooms, bathrooms, description, listingAgentId, LocalDate.now().toString(), availabilityStatus));
         redirectAttributes.addFlashAttribute("message", "Property '" + title + "' listed successfully!");
         redirectAttributes.addFlashAttribute("toastType", "success");
@@ -71,18 +99,33 @@ public class PropertyController {
     }
 
     @GetMapping("/edit/{id}")
-    public String showEditForm(@PathVariable String id, Model model, HttpSession session) {
-        if (!canManage(session)) return "redirect:/properties/list";
+    public String showEditForm(@PathVariable String id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         Property property = propertyService.searchById(id);
         if (property == null) throw new ResourceNotFoundException("Cannot edit. Property not found with ID: " + id);
+        if (!canModifySpecificProperty(session, property)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own properties.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/properties/list";
+        }
         model.addAttribute("property", property);
-        model.addAttribute("agents", agentService.getAllAgents());
+        User user = (User) session.getAttribute("user");
+        if ("AGENT".equals(user.getRole())) {
+            model.addAttribute("agents", List.of(agentService.searchById(user.getId())));
+        } else {
+            model.addAttribute("agents", agentService.getAllAgents());
+        }
         return "property-edit";
     }
 
     @PostMapping("/edit")
     public String updateProperty(@RequestParam String id, @RequestParam String title, @RequestParam String location, @RequestParam double price, @RequestParam String propertyType, @RequestParam int bedrooms, @RequestParam int bathrooms, @RequestParam String description, @RequestParam String listingAgentId, @RequestParam String listedDate, @RequestParam String availabilityStatus, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canManage(session)) return "redirect:/properties/list";
+        Property property = propertyService.searchById(id);
+        if (property == null) throw new ResourceNotFoundException("Property not found.");
+        if (!canModifySpecificProperty(session, property)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own properties.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/properties/list";
+        }
         propertyService.updateProperty(new Property(id, title, location, price, propertyType, bedrooms, bathrooms, description, listingAgentId, listedDate, availabilityStatus));
         redirectAttributes.addFlashAttribute("message", "Property details updated.");
         redirectAttributes.addFlashAttribute("toastType", "info");
@@ -91,7 +134,13 @@ public class PropertyController {
 
     @GetMapping("/delete/{id}")
     public String deleteProperty(@PathVariable String id, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canManage(session)) return "redirect:/properties/list";
+        Property property = propertyService.searchById(id);
+        if (property == null) throw new ResourceNotFoundException("Property not found.");
+        if (!canModifySpecificProperty(session, property)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only delete your own properties.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/properties/list";
+        }
         propertyService.deleteProperty(id);
         redirectAttributes.addFlashAttribute("message", "Property deleted successfully.");
         redirectAttributes.addFlashAttribute("toastType", "error");

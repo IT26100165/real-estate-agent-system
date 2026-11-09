@@ -4,6 +4,7 @@ import com.realestate.system.exception.ResourceNotFoundException;
 import com.realestate.system.model.Agent;
 import com.realestate.system.model.Client;
 import com.realestate.system.model.Review;
+import com.realestate.system.model.User;
 import com.realestate.system.service.AgentService;
 import com.realestate.system.service.ClientService;
 import com.realestate.system.service.ReviewService;
@@ -30,15 +31,29 @@ public class ReviewController {
     @Autowired
     private AgentService agentService;
 
-    private boolean canModify(HttpSession session) {
+    private boolean canModerate(HttpSession session) {
         return "ADMIN".equals(session.getAttribute("role"))
                 && "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
+    }
+
+    private boolean canAddReview(HttpSession session) {
+        return "CLIENT".equals(session.getAttribute("role"));
     }
 
     @GetMapping("/list")
     public String listReviews(Model model, HttpSession session) {
         if (session.getAttribute("role") == null) return "redirect:/login";
-        List<Review> reviews = reviewService.getAllReviews();
+
+        User user = (User) session.getAttribute("user");
+        List<Review> reviews;
+
+        // If Agent, only show their own reviews.
+        if ("AGENT".equals(user.getRole())) {
+            reviews = reviewService.getByAgentId(user.getId());
+        } else {
+            reviews = reviewService.getAllReviews();
+        }
+
         model.addAttribute("reviews", reviews);
         model.addAttribute("clientNames", buildClientNameMap(reviews));
         model.addAttribute("agentNames", buildAgentNameMap(reviews));
@@ -46,8 +61,12 @@ public class ReviewController {
     }
 
     @GetMapping("/add")
-    public String showAddForm(Model model, HttpSession session) {
-        if (session.getAttribute("role") == null) return "redirect:/login";
+    public String showAddForm(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+        if (!canAddReview(session)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: Only Clients can submit reviews.");
+            redirectAttributes.addFlashAttribute("toastType", "error");
+            return "redirect:/reviews/list";
+        }
         model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("agents", agentService.getAllAgents());
         return "review-add";
@@ -55,7 +74,8 @@ public class ReviewController {
 
     @PostMapping("/add")
     public String addReview(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, @RequestParam String moderationStatus, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (session.getAttribute("role") == null) return "redirect:/login";
+        if (!canAddReview(session)) return "redirect:/reviews/list";
+
         if (!reviewService.addReview(new Review(id, clientId, agentId, rating, comment, LocalDate.now().toString(), moderationStatus))) {
             model.addAttribute("error", "Duplicate ID.");
             model.addAttribute("clients", clientService.getAllClients());
@@ -87,8 +107,8 @@ public class ReviewController {
 
     @GetMapping("/edit/{id}")
     public String showEditForm(@PathVariable String id, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canModify(session)) {
-            redirectAttributes.addFlashAttribute("message", "Access Denied: Read-Only Admins cannot edit reviews.");
+        if (!canModerate(session)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: Only Admins can moderate reviews.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/reviews/list";
         }
@@ -102,7 +122,7 @@ public class ReviewController {
 
     @PostMapping("/edit")
     public String updateReview(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, @RequestParam String reviewDate, @RequestParam String moderationStatus, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canModify(session)) return "redirect:/reviews/list";
+        if (!canModerate(session)) return "redirect:/reviews/list";
         reviewService.updateReview(new Review(id, clientId, agentId, rating, comment, reviewDate, moderationStatus));
         redirectAttributes.addFlashAttribute("message", "Review moderated successfully.");
         redirectAttributes.addFlashAttribute("toastType", "info");
@@ -111,8 +131,8 @@ public class ReviewController {
 
     @GetMapping("/delete/{id}")
     public String deleteReview(@PathVariable String id, HttpSession session, RedirectAttributes redirectAttributes) {
-        if (!canModify(session)) {
-            redirectAttributes.addFlashAttribute("message", "Access Denied: Read-Only Admins cannot delete reviews.");
+        if (!canModerate(session)) {
+            redirectAttributes.addFlashAttribute("message", "Access Denied: Only Admins can delete reviews.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/reviews/list";
         }

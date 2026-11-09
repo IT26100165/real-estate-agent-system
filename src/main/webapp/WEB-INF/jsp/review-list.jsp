@@ -4,9 +4,18 @@
 
 <div class="container py-4">
     <div class="page-title-bar mb-4">
-        <h2 class="page-title"><i class="bi bi-star text-primary me-2"></i>Reviews & Ratings</h2>
+        <h2 class="page-title">
+            <i class="bi bi-star text-primary me-2"></i>
+            <c:choose>
+                <c:when test="${sessionScope.role == 'AGENT'}">My Reviews</c:when>
+                <c:otherwise>Reviews & Ratings</c:otherwise>
+            </c:choose>
+        </h2>
         <div class="action-buttons">
-            <a href="/reviews/add" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Review</a>
+            <%-- ONLY CLIENTS CAN ADD REVIEWS --%>
+            <c:if test="${sessionScope.role == 'CLIENT'}">
+                <a href="/reviews/add" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Add Review</a>
+            </c:if>
             <a href="/reviews/search" class="btn btn-outline-primary"><i class="bi bi-search me-1"></i> Search</a>
         </div>
     </div>

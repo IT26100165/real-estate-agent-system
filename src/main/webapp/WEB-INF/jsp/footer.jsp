@@ -1,25 +1,28 @@
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" %>
 </main>
 
 <footer class="footer-modern">
     <div class="container">
-        <p class="mb-1"><strong>EstateHub</strong> — Real Estate Agent Finder & Appointment System</p>
-        <p class="mb-0">© 2026 Group G3 · SE1020 Object-Oriented Programming · SLIIT</p>
+        <div class="d-flex flex-column flex-md-row justify-content-between align-items-center">
+            <div class="mb-2 mb-md-0">
+                <span class="fw-bold text-white"><i class="bi bi-buildings me-1"></i> EstateHub</span>
+                <span class="text-muted mx-2">|</span>
+                <span>Real Estate Agent Finder & Appointment System</span>
+            </div>
+            <div>
+                &copy; 2026 Group G3 &middot; SE1020 Object-Oriented Programming &middot; SLIIT
+            </div>
+        </div>
     </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<!-- jQuery (Required for DataTables) -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
-<!-- DataTables Core & Bootstrap 5 Integration -->
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
-<!-- Toastify JS -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-<!-- Chart.js (Required for Dashboards) -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-<!-- Hidden div to pass flash attributes to JS -->
 <div id="toast-data" data-message="${message}" data-type="${toastType}" style="display: none;"></div>
 
 <script>
