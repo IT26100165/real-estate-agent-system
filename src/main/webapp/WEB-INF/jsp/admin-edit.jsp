@@ -17,7 +17,7 @@
                     <option value="READ_ONLY" ${admin.permissions == 'READ_ONLY' ? 'selected' : ''}>READ_ONLY</option>
                 </select>
             </div>
-            <div class="mb-3"><label class="form-label">Activity Log</label><input type="text" name="activityLog" class="form-control" value="${admin.activityLog}"></div>
+            <div class="mb-3"><label class="form-label">Admin Activity Log</label><input type="text" name="activityLog" class="form-control" value="${admin.activityLog}"></div>
             <input type="hidden" name="lastLogin" value="${admin.lastLogin}">
 
             <div class="d-flex gap-2 mt-4">
