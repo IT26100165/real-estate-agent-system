@@ -19,39 +19,27 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequestMapping("/reviews")
 public class ReviewController {
 
-    @Autowired
-    private ReviewService reviewService;
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private AgentService agentService;
+    @Autowired private ReviewService reviewService;
+    @Autowired private ClientService clientService;
+    @Autowired private AgentService agentService;
 
-    // Helper: Can they moderate? (Full Access Admins)
     private boolean canModerate(HttpSession session) {
         return "ADMIN".equals(session.getAttribute("role"))
                 && "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
     }
 
-    // Helper: Can they edit/delete THIS specific review?
     private boolean canModifySpecificReview(HttpSession session, Review review) {
         User user = (User) session.getAttribute("user");
         if (user == null) return false;
 
-        // Admins can moderate any review
-        if ("ADMIN".equals(user.getRole())) {
-            return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
-        }
-
-        // Clients can only edit/delete their own reviews
-        if ("CLIENT".equals(user.getRole())) {
-            return user.getId().equals(review.getClientId());
-        }
-
+        if ("ADMIN".equals(user.getRole())) return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
+        if ("CLIENT".equals(user.getRole())) return user.getId().equals(review.getClientId());
         return false;
     }
 
@@ -66,9 +54,12 @@ public class ReviewController {
         User user = (User) session.getAttribute("user");
         List<Review> reviews;
 
-        // If Agent, only show their own reviews.
         if ("AGENT".equals(user.getRole())) {
             reviews = reviewService.getByAgentId(user.getId());
+        } else if ("CLIENT".equals(user.getRole())) {
+            reviews = reviewService.getAllReviews().stream()
+                    .filter(r -> "Approved".equals(r.getModerationStatus()) || user.getId().equals(r.getClientId()))
+                    .collect(Collectors.toList());
         } else {
             reviews = reviewService.getAllReviews();
         }
@@ -86,22 +77,34 @@ public class ReviewController {
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/reviews/list";
         }
-        model.addAttribute("clients", clientService.getAllClients());
+
+        User user = (User) session.getAttribute("user");
+        if ("ADMIN".equals(user.getRole())) model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("agents", agentService.getAllAgents());
         return "review-add";
     }
 
     @PostMapping("/add")
-    public String addReview(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, @RequestParam String moderationStatus, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String addReview(@RequestParam(required = false) String clientId, @RequestParam String id, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canAddReview(session)) return "redirect:/reviews/list";
+
+        User user = (User) session.getAttribute("user");
+
+        // 1. Force clientId to logged-in user
+        if ("CLIENT".equals(user.getRole())) {
+            clientId = user.getId();
+        }
+
+        // 2. Force moderationStatus to "Pending" (Clients cannot self-approve)
+        String moderationStatus = "Pending";
 
         if (!reviewService.addReview(new Review(id, clientId, agentId, rating, comment, LocalDate.now().toString(), moderationStatus))) {
             model.addAttribute("error", "Duplicate ID.");
-            model.addAttribute("clients", clientService.getAllClients());
+            if ("ADMIN".equals(user.getRole())) model.addAttribute("clients", clientService.getAllClients());
             model.addAttribute("agents", agentService.getAllAgents());
             return "review-add";
         }
-        redirectAttributes.addFlashAttribute("message", "Thank you! Your review has been submitted.");
+        redirectAttributes.addFlashAttribute("message", "Thank you! Your review is pending admin approval.");
         redirectAttributes.addFlashAttribute("toastType", "success");
         return "redirect:/reviews/list";
     }
@@ -142,7 +145,7 @@ public class ReviewController {
     }
 
     @PostMapping("/edit")
-    public String updateReview(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, @RequestParam String reviewDate, @RequestParam String moderationStatus, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String updateReview(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam int rating, @RequestParam String comment, @RequestParam String reviewDate, @RequestParam(required = false) String moderationStatus, HttpSession session, RedirectAttributes redirectAttributes) {
         Review existing = reviewService.searchById(id);
         if (existing == null) throw new ResourceNotFoundException("Review not found.");
 
@@ -150,6 +153,12 @@ public class ReviewController {
             redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own reviews.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/reviews/list";
+        }
+
+        User user = (User) session.getAttribute("user");
+        // If a Client is editing their own review, keep the existing status (they can't change it)
+        if ("CLIENT".equals(user.getRole())) {
+            moderationStatus = existing.getModerationStatus();
         }
 
         reviewService.updateReview(new Review(id, clientId, agentId, rating, comment, reviewDate, moderationStatus));

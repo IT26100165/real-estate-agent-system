@@ -17,12 +17,10 @@
                 <div class="col-md-6 mb-3">
                     <label class="form-label">Client</label>
                     <c:choose>
-                        <%-- If a Client is logged in, lock it to their profile --%>
                         <c:when test="${sessionScope.role == 'CLIENT'}">
                             <input type="text" class="form-control bg-light" value="${sessionScope.userName}" readonly>
                             <input type="hidden" name="clientId" value="${sessionScope.user.id}">
                         </c:when>
-                        <%-- If an Admin is logged in, let them pick any client --%>
                         <c:otherwise>
                             <select name="clientId" class="form-select" required>
                                 <option value="">-- Select Client --</option>
@@ -39,10 +37,21 @@
                     <select name="agentId" class="form-select" required>
                         <option value="">-- Select Agent --</option>
                         <c:forEach var="ag" items="${agents}">
-                            <option value="${ag.id}">${ag.id} — ${ag.name} (${ag.specialization})</option>
+                            <option value="${ag.id}">${ag.id} — ${ag.name}</option>
                         </c:forEach>
                     </select>
                 </div>
+            </div>
+
+            <!-- NEW PROPERTY DROPDOWN -->
+            <div class="mb-3">
+                <label class="form-label">Property to View</label>
+                <select name="propertyId" class="form-select" required>
+                    <option value="">-- Select Property --</option>
+                    <c:forEach var="pr" items="${properties}">
+                        <option value="${pr.id}">${pr.id} — ${pr.title} (${pr.location})</option>
+                    </c:forEach>
+                </select>
             </div>
 
             <div class="row">
@@ -59,7 +68,6 @@
                         <option>01:00 PM</option>
                         <option>02:00 PM</option>
                         <option>03:00 PM</option>
-                        <option>04:00 PM</option>
                     </select>
                 </div>
             </div>
@@ -72,11 +80,6 @@
                         <option value="Confirmed">Confirmed</option>
                     </c:if>
                 </select>
-            </div>
-
-            <div class="mb-3">
-                <label class="form-label">Property Description</label>
-                <input type="text" name="propertyDescription" class="form-control" placeholder="e.g., 3-bedroom apartment in Colombo 07" required>
             </div>
 
             <div class="mb-3">

@@ -4,10 +4,12 @@ import com.realestate.system.exception.ResourceNotFoundException;
 import com.realestate.system.model.Agent;
 import com.realestate.system.model.Appointment;
 import com.realestate.system.model.Client;
+import com.realestate.system.model.Property;
 import com.realestate.system.model.User;
 import com.realestate.system.service.AgentService;
 import com.realestate.system.service.AppointmentService;
 import com.realestate.system.service.ClientService;
+import com.realestate.system.service.PropertyService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,18 +26,14 @@ import java.util.stream.Collectors;
 @RequestMapping("/appointments")
 public class AppointmentController {
 
-    @Autowired
-    private AppointmentService appointmentService;
-    @Autowired
-    private ClientService clientService;
-    @Autowired
-    private AgentService agentService;
+    @Autowired private AppointmentService appointmentService;
+    @Autowired private ClientService clientService;
+    @Autowired private AgentService agentService;
+    @Autowired private PropertyService propertyService;
 
     private boolean canBook(HttpSession session) {
         String role = (String) session.getAttribute("role");
-        if ("ADMIN".equals(role)) {
-            return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
-        }
+        if ("ADMIN".equals(role)) return "FULL_ACCESS".equals(session.getAttribute("adminPermissions"));
         return "CLIENT".equals(role);
     }
 
@@ -65,53 +63,45 @@ public class AppointmentController {
         model.addAttribute("appointments", appointments);
         model.addAttribute("clientNames", buildClientNameMap(appointments));
         model.addAttribute("agentNames", buildAgentNameMap(appointments));
+        model.addAttribute("propertyTitles", buildPropertyTitleMap(appointments));
         return "appointment-list";
     }
 
     @GetMapping("/add")
     public String showAddForm(Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canBook(session)) {
-            redirectAttributes.addFlashAttribute("message", "Access Denied: Agents and Read-Only Admins cannot book appointments.");
+            redirectAttributes.addFlashAttribute("message", "Access Denied.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/appointments/list";
         }
 
         User user = (User) session.getAttribute("user");
-
-        // Only load the full client list if an Admin is booking.
-        // If a client is booking, they don't need to see other clients.
-        if ("ADMIN".equals(user.getRole())) {
-            model.addAttribute("clients", clientService.getAllClients());
-        }
+        if ("ADMIN".equals(user.getRole())) model.addAttribute("clients", clientService.getAllClients());
 
         model.addAttribute("agents", agentService.getAllAgents());
+        model.addAttribute("properties", propertyService.getAllProperties());
         return "appointment-add";
     }
 
     @PostMapping("/add")
-    public String addAppointment(@RequestParam(required = false) String clientId, @RequestParam String id, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String addAppointment(@RequestParam(required = false) String clientId, @RequestParam String id, @RequestParam String agentId, @RequestParam String propertyId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String notes, Model model, HttpSession session, RedirectAttributes redirectAttributes) {
         if (!canBook(session)) return "redirect:/appointments/list";
 
         User user = (User) session.getAttribute("user");
+        if ("CLIENT".equals(user.getRole())) clientId = user.getId();
 
-        // SPOOFING PROTECTION: If it's a client booking, force their own ID.
-        if ("CLIENT".equals(user.getRole())) {
-            clientId = user.getId();
-        }
-
-        Appointment appt = new Appointment(id, clientId, agentId, date, timeSlot, status, propertyDescription, notes);
+        Appointment appt = new Appointment(id, clientId, agentId, propertyId, date, timeSlot, status, notes);
         if (!appointmentService.addAppointment(appt)) {
             model.addAttribute("error", "Conflict detected or Duplicate ID.");
             if ("ADMIN".equals(user.getRole())) model.addAttribute("clients", clientService.getAllClients());
             model.addAttribute("agents", agentService.getAllAgents());
+            model.addAttribute("properties", propertyService.getAllProperties());
             return "appointment-add";
         }
         redirectAttributes.addFlashAttribute("message", "Appointment booked for " + date + "!");
         redirectAttributes.addFlashAttribute("toastType", "success");
         return "redirect:/appointments/list";
     }
-
-    // ... Keep the rest of the methods (search, edit, delete) exactly as they are in your current file.
 
     @GetMapping("/search")
     public String showSearchForm(HttpSession session) {
@@ -128,6 +118,7 @@ public class AppointmentController {
         model.addAttribute("searchedId", id);
         model.addAttribute("clientName", clientService.searchById(appt.getClientId()) != null ? clientService.searchById(appt.getClientId()).getName() : "Unknown");
         model.addAttribute("agentName", agentService.searchById(appt.getAgentId()) != null ? agentService.searchById(appt.getAgentId()).getName() : "Unknown");
+        model.addAttribute("propertyTitle", propertyService.searchById(appt.getPropertyId()) != null ? propertyService.searchById(appt.getPropertyId()).getTitle() : "Unknown Property");
         return "appointment-search";
     }
 
@@ -136,26 +127,27 @@ public class AppointmentController {
         Appointment appt = appointmentService.searchById(id);
         if (appt == null) throw new ResourceNotFoundException("Cannot edit. Appointment not found with ID: " + id);
         if (!canModifySpecificAppointment(session, appt)) {
-            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own appointments.");
+            redirectAttributes.addFlashAttribute("message", "Access Denied.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/appointments/list";
         }
         model.addAttribute("appointment", appt);
         model.addAttribute("clients", clientService.getAllClients());
         model.addAttribute("agents", agentService.getAllAgents());
+        model.addAttribute("properties", propertyService.getAllProperties());
         return "appointment-edit";
     }
 
     @PostMapping("/edit")
-    public String updateAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String propertyDescription, @RequestParam String notes, HttpSession session, RedirectAttributes redirectAttributes) {
+    public String updateAppointment(@RequestParam String id, @RequestParam String clientId, @RequestParam String agentId, @RequestParam String propertyId, @RequestParam String date, @RequestParam String timeSlot, @RequestParam String status, @RequestParam String notes, HttpSession session, RedirectAttributes redirectAttributes) {
         Appointment appt = appointmentService.searchById(id);
         if (appt == null) throw new ResourceNotFoundException("Appointment not found.");
         if (!canModifySpecificAppointment(session, appt)) {
-            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only edit your own appointments.");
+            redirectAttributes.addFlashAttribute("message", "Access Denied.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/appointments/list";
         }
-        appointmentService.updateAppointment(new Appointment(id, clientId, agentId, date, timeSlot, status, propertyDescription, notes));
+        appointmentService.updateAppointment(new Appointment(id, clientId, agentId, propertyId, date, timeSlot, status, notes));
         redirectAttributes.addFlashAttribute("message", "Appointment updated successfully.");
         redirectAttributes.addFlashAttribute("toastType", "info");
         return "redirect:/appointments/list";
@@ -166,7 +158,7 @@ public class AppointmentController {
         Appointment appt = appointmentService.searchById(id);
         if (appt == null) throw new ResourceNotFoundException("Appointment not found.");
         if (!canModifySpecificAppointment(session, appt)) {
-            redirectAttributes.addFlashAttribute("message", "Access Denied: You can only delete your own appointments.");
+            redirectAttributes.addFlashAttribute("message", "Access Denied.");
             redirectAttributes.addFlashAttribute("toastType", "error");
             return "redirect:/appointments/list";
         }
@@ -192,6 +184,16 @@ public class AppointmentController {
             if (!map.containsKey(a.getAgentId())) {
                 Agent ag = agentService.searchById(a.getAgentId());
                 map.put(a.getAgentId(), ag != null ? ag.getName() : "Unknown");
+            }
+        }
+        return map;
+    }
+    private Map<String, String> buildPropertyTitleMap(List<Appointment> appointments) {
+        Map<String, String> map = new HashMap<>();
+        for (Appointment a : appointments) {
+            if (!map.containsKey(a.getPropertyId())) {
+                Property p = propertyService.searchById(a.getPropertyId());
+                map.put(a.getPropertyId(), p != null ? p.getTitle() : "Unknown Property");
             }
         }
         return map;

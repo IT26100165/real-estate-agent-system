@@ -13,7 +13,6 @@
             </c:choose>
         </h2>
         <div class="action-buttons">
-            <%-- ONLY CLIENTS AND FULL-ACCESS ADMINS CAN BOOK --%>
             <c:if test="${sessionScope.role == 'CLIENT' || (sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS')}">
                 <a href="/appointments/add" class="btn btn-primary"><i class="bi bi-plus-lg me-1"></i> Book Appointment</a>
             </c:if>
@@ -29,6 +28,7 @@
                     <th>ID</th>
                     <th>Client</th>
                     <th>Agent</th>
+                    <th>Property</th>
                     <th>Schedule</th>
                     <th>Status</th>
                     <c:if test="${(sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS') || sessionScope.role == 'AGENT'}">
@@ -42,6 +42,7 @@
                         <td><span class="text-muted fw-bold">${ap.id}</span></td>
                         <td class="fw-bold text-dark">${clientNames[ap.clientId]}</td>
                         <td class="text-muted">${agentNames[ap.agentId]}</td>
+                        <td class="text-muted small"><i class="bi bi-house me-1"></i>${propertyTitles[ap.propertyId]}</td>
                         <td>
                             <div class="fw-bold text-dark">${ap.date}</div>
                             <div class="small text-muted"><i class="bi bi-clock me-1"></i>${ap.timeSlot}</div>
