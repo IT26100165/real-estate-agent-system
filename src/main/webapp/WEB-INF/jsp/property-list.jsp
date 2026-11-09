@@ -25,7 +25,7 @@
             <table class="table table-modern align-middle">
                 <thead>
                 <tr>
-                    <th>Property</th>
+                    <th>Property Details</th>
                     <th>Location</th>
                     <th>Price</th>
                     <th>Agent</th>
