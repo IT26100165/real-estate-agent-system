@@ -28,6 +28,7 @@
                     <th>Property Details</th>
                     <th>Location</th>
                     <th>Price</th>
+                    git
                     <th>Agent</th>
                     <th>Status</th>
                     <c:if test="${(sessionScope.role == 'ADMIN' && sessionScope.adminPermissions == 'FULL_ACCESS') || sessionScope.role == 'AGENT'}">
