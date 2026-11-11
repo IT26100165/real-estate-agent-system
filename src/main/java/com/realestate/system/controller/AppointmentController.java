@@ -1,7 +1,7 @@
 package com.realestate.system.controller;
 
 import com.realestate.system.exception.ResourceNotFoundException;
-import com.realestate.system.model.Agent;
+import com.realestate.system.model.Agent; //import model
 import com.realestate.system.model.Appointment;
 import com.realestate.system.model.Client;
 import com.realestate.system.model.Property;
