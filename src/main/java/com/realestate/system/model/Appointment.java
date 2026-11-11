@@ -7,7 +7,7 @@ public class Appointment {
     private String propertyId;    // FK to Property
     private String date;
     private String timeSlot;
-    private String status;        // Pending, Confirmed, Completed, Cancelled
+    private String status;        // Pending, Confirmed, Completed, Cancel
     private String notes;
 
     public Appointment(String id, String clientId, String agentId, String propertyId,
