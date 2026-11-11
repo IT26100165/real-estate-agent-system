@@ -83,7 +83,7 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Notes</label>
+                <label class="form-label">Additional Notes</label>
                 <textarea name="notes" class="form-control" rows="2" placeholder="Any additional details..."></textarea>
             </div>
 
